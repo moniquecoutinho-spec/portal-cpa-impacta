@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal CPA Impacta — Modelo 2: Painel Aplicativo</title>
+<style>
+  :root{
+    --azul:#0e2f63;
+    --azul-meio:#1a4a9e;
+    --azul-claro:#eaf0fa;
+    --preto:#101319;
+    --branco:#ffffff;
+    --cinza:#f5f6f9;
+    --borda:#e2e6ef;
+    --texto:#20242c;
+    --suave:#6a7186;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Inter,Arial,sans-serif}
+  body{background:var(--cinza);color:var(--texto)}
+
+  /* ---------- Tela de login ---------- */
+  #telaLogin{position:fixed;inset:0;background:var(--preto);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem}
+  #telaLogin .caixa{display:grid;grid-template-columns:1.1fr 1fr;max-width:880px;width:100%;background:var(--branco);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .login-arte{background:linear-gradient(160deg,var(--azul),var(--preto));color:#fff;padding:2.4rem;display:flex;flex-direction:column;justify-content:space-between;min-height:420px}
+  .login-arte .sigla{background:#fff;color:var(--azul);font-weight:800;padding:.5rem .8rem;border-radius:8px;align-self:flex-start}
+  .login-arte h1{font-size:1.5rem;line-height:1.3;margin-top:1.2rem}
+  .login-arte p{font-size:.85rem;opacity:.8;line-height:1.55;margin-top:.6rem}
+  .login-arte ul{list-style:none;margin-top:1.4rem;font-size:.8rem}
+  .login-arte li{margin:.45rem 0;opacity:.9}
+  .login-form{padding:2.4rem}
+  .login-form h2{color:var(--azul);margin-bottom:.3rem}
+  .login-form .sub{font-size:.8rem;color:var(--suave);margin-bottom:1.4rem}
+  label{display:block;font-size:.72rem;font-weight:700;color:var(--azul);margin:.9rem 0 .3rem;text-transform:uppercase;letter-spacing:.4px}
+  input,select{width:100%;padding:.65rem .8rem;border:1px solid var(--borda);border-radius:8px;font-size:.85rem;background:#fff;color:var(--texto)}
+  .btn-acessar{width:100%;margin-top:1.4rem;background:var(--azul);color:#fff;border:none;padding:.8rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:.9rem}
+  .btn-acessar:hover{background:var(--azul-meio)}
+  .acesso-demo{font-size:.7rem;color:var(--suave);margin-top:.8rem;text-align:center}
+
+  /* ---------- Aplicativo ---------- */
+  #app{display:none;min-height:100vh}
+  .layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+  .sidebar{background:var(--preto);color:#c3c8d4;padding:1.2rem 0;display:flex;flex-direction:column}
+  .sidebar .marca{display:flex;align-items:center;gap:.6rem;padding:0 1.2rem 1.2rem;border-bottom:1px solid #23262e}
+  .sidebar .sigla{background:var(--azul-meio);color:#fff;font-weight:800;padding:.4rem .55rem;border-radius:6px}
+  .sidebar .marca b{color:#fff;font-size:.85rem;display:block}
+  .sidebar .marca small{font-size:.62rem}
+  .menu{list-style:none;flex:1;margin-top:.8rem}
+  .menu a{display:block;padding:.7rem 1.2rem;color:#c3c8d4;text-decoration:none;font-size:.82rem;font-weight:600;border-left:3px solid transparent}
+  .menu a:hover{color:#fff;background:#1a1e27}
+  .menu a.ativo{color:#fff;background:#1a1e27;border-left-color:var(--azul-meio)}
+  .sidebar .rodape{padding:1rem 1.2rem;border-top:1px solid #23262e;font-size:.68rem;color:#8a90a0}
+  .sidebar .rodape b{color:#fff;display:block;font-size:.78rem}
+
+  .conteudo{padding:1.6rem 2rem 3rem}
+  .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;margin-bottom:1.6rem}
+  .topbar h1{font-size:1.35rem;color:var(--azul)}
+  .topbar small{display:block;color:var(--suave);font-weight:400;font-size:.78rem;margin-top:.15rem}
+  .chip-perfil{background:var(--azul-claro);color:var(--azul);font-size:.72rem;font-weight:700;padding:.45rem .9rem;border-radius:20px}
+  .btn-sair{background:none;border:1px solid var(--borda);padding:.45rem .9rem;border-radius:8px;cursor:pointer;font-size:.75rem;font-weight:700;color:var(--suave)}
+
+  .paginas section{display:none}
+  .paginas section.ativa{display:block}
+
+  .grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;margin-bottom:1.6rem}
+  .kpi{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:1.1rem}
+  .kpi span{font-size:.7rem;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.5px}
+  .kpi b{display:block;font-size:1.7rem;margin-top:.35rem;color:var(--azul)}
+  .kpi small{font-size:.72rem;color:var(--suave)}
+
+  .painel{background:#fff;border:1px solid var(--borda);border-radius:12px;padding:1.3rem;margin-bottom:1.4rem}
+  .painel h2{font-size:1rem;color:var(--azul);margin-bottom:.3rem}
+  .painel .fonte{font-size:.72rem;color:var(--suave);margin-bottom:1rem}
+  .placeholder-embed{background:linear-gradient(135deg,var(--azul-claro),#fff);border:2px dashed var(--azul-meio);border-radius:10px;padding:2.2rem 1rem;text-align:center;color:var(--azul);font-size:.8rem;font-weight:600}
+  .placeholder-embed small{display:block;font-weight:400;color:var(--suave);margin-top:.35rem}
+
+  .graf-barras{display:flex;align-items:flex-end;gap:1rem;height:150px;padding:0 .5rem}
+  .graf-barras .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:.4rem;height:100%;justify-content:flex-end}
+  .graf-barras .barra{width:100%;max-width:46px;background:var(--azul);border-radius:6px 6px 0 0;position:relative}
+  .graf-barras .barra.destaque{background:var(--preto)}
+  .graf-barras .rot{font-size:.68rem;color:var(--suave)}
+  .graf-barras .val{position:absolute;top:-1.25rem;left:0;right:0;text-align:center;font-size:.7rem;font-weight:700;color:var(--azul)}
+
+  .lista-itens .item{display:flex;align-items:center;gap:1rem;padding:.8rem .2rem;border-bottom:1px solid var(--borda);flex-wrap:wrap}
+  .lista-itens .item:last-child{border-bottom:none}
+  .icone-doc{width:38px;height:38px;border-radius:9px;background:var(--azul-claro);color:var(--azul);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.7rem}
+  .item b{font-size:.85rem}
+  .item small{display:block;color:var(--suave);font-size:.72rem;margin-top:.15rem}
+  .item .flexg{flex:1}
+  .badge{font-size:.65rem;font-weight:800;padding:.25rem .6rem;border-radius:20px}
+  .badge.pub{background:#e4f5ea;color:#0a7a3d}
+  .badge.and{background:var(--azul-claro);color:var(--azul)}
+  .btn-baixo{background:var(--azul);color:#fff;border:none;padding:.4rem .9rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer}
+
+  .devolutiva{border:1px solid var(--borda);border-left:4px solid var(--azul);border-radius:0 10px 10px 0;padding:1rem 1.2rem;margin-bottom:.9rem;background:#fff}
+  .devolutiva header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.4rem;margin-bottom:.35rem}
+  .devolutiva h3{font-size:.92rem;color:var(--azul)}
+  .devolutiva .quando{font-size:.7rem;color:var(--suave);font-weight:700}
+  .devolutiva p{font-size:.82rem;color:#3c414d;line-height:1.5}
+  .devolutiva .area{display:inline-block;margin-top:.55rem;background:var(--preto);color:#fff;font-size:.65rem;font-weight:700;padding:.2rem .6rem;border-radius:20px}
+
+  .contato-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+  .cartao-contato{background:var(--preto);color:#fff;border-radius:12px;padding:1.4rem}
+  .cartao-contato h3{font-size:.95rem;margin-bottom:.4rem}
+  .cartao-contato p{font-size:.8rem;color:#b9bfcc;line-height:1.5;margin-bottom:.8rem}
+  .cartao-contato a{color:#fff;font-size:.8rem;font-weight:700;text-decoration:none;border-bottom:1px solid var(--azul-meio)}
+
+  @media(max-width:900px){
+    #telaLogin .caixa{grid-template-columns:1fr}
+    .login-arte{min-height:auto;gap:1rem}
+    .layout{grid-template-columns:64px 1fr}
+    .sidebar .marca b,.sidebar .marca small,.menu a span,.sidebar .rodape{display:none}
+    .menu a{padding:.8rem;text-align:center}
+    .conteudo{padding:1.2rem 1rem 2.5rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="telaLogin">
+  <div class="caixa">
+    <div class="login-arte">
+      <div class="sigla">CPA</div>
+      <div>
+        <h1>Portal de Avaliação Institucional</h1>
+        <p>Faculdade Impacta · Comissão Própria de Avaliação</p>
+        <ul>
+          <li>▸ Dashboards das pesquisas institucionais</li>
+          <li>▸ Mural de devolutivas das áreas</li>
+          <li>▸ Relatórios e boletins</li>
+        </ul>
+      </div>
+      <small style="opacity:.6;font-size:.68rem">Projeto de extensão · 2026</small>
+    </div>
+    <div class="login-form">
+      <h2>Acesse sua conta</h2>
+      <p class="sub">O conteúdo exibido depende do seu nível de acesso.</p>
+      <label for="email">E-mail institucional</label>
+      <input type="email" id="email" placeholder="seu.nome@faculdadeimpacta.edu.br">
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" placeholder="••••••••">
+      <label for="perfil">Perfil de acesso</label>
+      <select id="perfil">
+        <option value="aluno">Aluno (presencial / EAD)</option>
+        <option value="coordenador">Coordenador de Curso</option>
+        <option value="externo">Avaliador Externo (MEC)</option>
+        <option value="admin">Administrador (CPA)</option>
+      </select>
+      <button class="btn-acessar" onclick="entrar()">Entrar</button>
+      <p class="acesso-demo">Protótipo: o login apenas simula os níveis de acesso.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APLICATIVO ============ -->
+<div id="app">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="marca">
+        <div class="sigla">CPA</div>
+        <div><b>Portal CPA</b><small>Faculdade Impacta</small></div>
+      </div>
+      <ul class="menu">
+        <li><a href="#" class="ativo" data-pag="dash" onclick="irPara('dash',this)"><span>📊</span> <span>Dashboards</span></a></li>
+        <li><a href="#" data-pag="mural" onclick="irPara('mural',this)"><span>💬</span> <span>Mural de Devolutivas</span></a></li>
+        <li><a href="#" data-pag="relat" onclick="irPara('relat',this)"><span>📄</span> <span>Relatórios</span></a></li>
+        <li><a href="#" data-pag="contato" onclick="irPara('contato',this)"><span>✉️</span> <span>Contato</span></a></li>
+      </ul>
+      <div class="rodape">
+        Logado como <b id="nomeUsuario">Usuário</b>
+        <span id="permissaoResumo" style="display:block;margin-top:.3rem"></span>
+      </div>
+    </aside>
+
+    <main class="conteudo">
+      <div class="topbar">
+        <h1 id="tituloPagina">Dashboards <small id="subtitulo">Resultados das pesquisas institucionais</small></h1>
+        <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+          <span class="chip-perfil" id="chipPerfil">Aluno</span>
+          <button class="btn-sair" onclick="sair()">Sair</button>
+        </div>
+      </div>
+
+      <div class="paginas">
+        <!-- Dashboards -->
+        <section id="pag-dash" class="ativa">
+          <div class="grid-cards">
+            <div class="kpi"><span>Participação 2026</span><b id="kpi1">—</b><small>alunos responderam</small></div>
+            <div class="kpi"><span>Índice de satisfação</span><b id="kpi2">—</b><small>escala 0–10</small></div>
+            <div class="kpi"><span>Devolutivas publicadas</span><b>12</b><small>no mural deste ano</small></div>
+            <div class="kpi"><span>Dimensões avaliadas</span><b>9</b><small>conforme diretrizes do SINAES</small></div>
+          </div>
+
+          <div class="painel" id="dash-cpa">
+            <h2>Pesquisa da CPA — Autoavaliação Institucional</h2>
+            <p class="fonte">Dashboard incorporado do Google Data Studio · visível para todos os perfis</p>
+            <div class="graf-barras">
+              <div class="col"><div class="barra" style="height:62%"><span class="val">62</span></div><span class="rot">2021</span></div>
+              <div class="col"><div class="barra" style="height:70%"><span class="val">70</span></div><span class="rot">2022</span></div>
+              <div class="col"><div class="barra" style="height:66%"><span class="val">66</span></div><span class="rot">2023</span></div>
+              <div class="col"><div class="barra" style="height:78%"><span class="val">78</span></div><span class="rot">2024</span></div>
+              <div class="col"><div class="barra destaque" style="height:85%"><span class="val">85</span></div><span class="rot">2025</span></div>
+            </div>
+          </div>
+
+          <div class="painel" id="dash-docente" data-perfis="coordenador,externo,admin">
+            <h2>Avaliação Docente</h2>
+            <p class="fonte">Disponível para coordenadores, avaliadores externos e CPA</p>
+            <div class="placeholder-embed">
+              [ EMBED — Google Data Studio: Avaliação Docente ]
+              <small>Nesta área entra o iframe com o link do dashboard</small>
+            </div>
+          </div>
+
+          <div class="painel" id="dash-egressos" data-perfis="coordenador,externo,admin">
+            <h2>Pesquisa de Egressos</h2>
+            <p class="fonte">Disponível para coordenadores, avaliadores externos e CPA</p>
+            <div class="placeholder-embed">
+              [ EMBED — Google Data Studio: Egressos ]
+              <small>Nesta área entra o iframe com o link do dashboard</small>
+            </div>
+          </div>
+
+          <div class="painel" id="dash-completo" data-perfis="externo,admin">
+            <h2>Painel Completo — Avaliador Externo</h2>
+            <p class="fonte">Acesso total: séries históricas, comparações e indicadores exigidos pelo MEC</p>
+            <div class="placeholder-embed">
+              [ EMBED — Google Data Studio: Painel consolidado ]
+              <small>Nesta área entra o iframe com o link do dashboard</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Mural -->
+        <section id="pag-mural">
+          <div class="devolutiva">
+            <header><h3>Ampliação do acervo digital da biblioteca</h3><span class="quando">Publicado em 15/09/2026</span></header>
+            <p>Em resposta à demanda por mais e-books e periódicos, a Coordenação de Biblioteca adquiriu novas bases de dados com acesso remoto para alunos presenciais e EAD.</p>
+            <span class="area">Biblioteca</span>
+          </div>
+          <div class="devolutiva">
+            <header><h3>Revisão das estratégias de comunicação institucional</h3><span class="quando">Publicado em 22/08/2026</span></header>
+            <p>A Direção Acadêmica publicou novo plano de comunicação após apontamentos sobre falhas na divulgação de prazos e eventos. Calendário unificado já disponível.</p>
+            <span class="area">Direção Acadêmica</span>
+          </div>
+          <div class="devolutiva">
+            <header><h3>Tutoria reforçada em disciplinas com maior índice de reprovação</h3><span class="quando">Publicado em 30/07/2026</span></header>
+            <p>Monitorias contratadas e horários ampliados nos cursos com piores índices apontados na avaliação docente do 1º semestre.</p>
+            <span class="area">Coordenação de Curso</span>
+          </div>
+        </section>
+
+        <!-- Relatórios -->
+        <section id="pag-relat">
+          <div class="painel">
+            <h2>Relatórios e Boletins</h2>
+            <p class="fonte">Repositório de documentos institucionais</p>
+            <div class="lista-itens">
+              <div class="item"><div class="icone-doc">PDF</div><div class="flexg"><b>Relatório de Autoavaliação Institucional — Ciclo completo</b><small>Ano-base 2025 · 84 páginas</small></div><span class="badge pub">Publicado</span><button class="btn-baixo">Abrir</button></div>
+              <div class="item"><div class="icone-doc">PDF</div><div class="flexg"><b>Boletim Informativo CPA nº 12</b><small>Julho/2026 · 8 páginas</small></div><span class="badge pub">Publicado</span><button class="btn-baixo">Abrir</button></div>
+              <div class="item"><div class="icone-doc">PDF</div><div class="flexg"><b>Sumário Executivo — Pesquisa de Egressos</b><small>2026 · em revisão pela CPA</small></div><span class="badge and">Em elaboração</span><button class="btn-baixo" disabled style="opacity:.4">Abrir</button></div>
+              <div class="item"><div class="icone-doc">PDF</div><div class="flexg"><b>Plano de Ação — demandas da comunidade</b><small>2026 · 22 páginas</small></div><span class="badge pub">Publicado</span><button class="btn-baixo">Abrir</button></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Contato -->
+        <section id="pag-contato">
+          <div class="contato-grid">
+            <div class="cartao-contato"><h3>Google Chats</h3><p>Converse com a equipe da CPA em horário comercial, conforme disponibilidade da coordenadora.</p><a href="#">Entrar na sala →</a></div>
+            <div class="cartao-contato"><h3>Google Meet</h3><p>Atendimento por videochamada mediante agendamento prévio pelo e-mail institucional.</p><a href="#">Agendar reunião →</a></div>
+            <div class="cartao-contato"><h3>E-mail</h3><p>cpa@faculdadeimpacta.edu.br<br>Dúvidas, sugestões e demandas de pesquisa.</p><a href="#">Escrever agora →</a></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const perfis = {
+    aluno:{nome:'Aluno',kpi1:'1.240',kpi2:'8,1'},
+    coordenador:{nome:'Coordenador',kpi1:'1.240',kpi2:'8,1'},
+    externo:{nome:'Avaliador Externo',kpi1:'1.240',kpi2:'8,1'},
+    admin:{nome:'Administrador (CPA)',kpi1:'1.240',kpi2:'8,1'}
+  };
+  const titulos = {
+    dash:['Dashboards','Resultados das pesquisas institucionais'],
+    mural:['Mural de Devolutivas','Respostas das áreas às demandas da comunidade'],
+    relat:['Relatórios','Repositório de relatórios e boletins'],
+    contato:['Contato','Fale com a CPA']
+  };
+  function entrar(){
+    const p = document.getElementById('perfil').value;
+    document.getElementById('telaLogin').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.getElementById('chipPerfil').textContent = perfis[p].nome;
+    document.getElementById('nomeUsuario').textContent = perfis[p].nome;
+    document.getElementById('kpi1').textContent = perfis[p].kpi1;
+    document.getElementById('kpi2').textContent = perfis[p].kpi2;
+    document.getElementById('permissaoResumo').textContent =
+      p==='aluno' ? 'Acesso: Pesquisa da CPA' :
+      p==='coordenador' ? 'Acesso: CPA, Docente e Egressos' : 'Acesso total';
+    // aplica permissões nos painéis
+    document.querySelectorAll('[data-perfis]').forEach(el=>{
+      el.style.display = el.dataset.perfis.split(',').includes(p) ? 'block' : 'none';
+    });
+  }
+  function sair(){
+    document.getElementById('app').style.display='none';
+    document.getElementById('telaLogin').style.display='flex';
+  }
+  function irPara(pag, link){
+    event.preventDefault();
+    document.querySelectorAll('.menu a').forEach(a=>a.classList.remove('ativo'));
+    link.classList.add('ativo');
+    document.querySelectorAll('.paginas section').forEach(s=>s.classList.remove('ativa'));
+    document.getElementById('pag-'+pag).classList.add('ativa');
+    document.getElementById('tituloPagina').childNodes[0].textContent = titulos[pag][0]+' ';
+    document.getElementById('subtitulo').textContent = titulos[pag][1];
+  }
+</script>
+</body>
+</html>
