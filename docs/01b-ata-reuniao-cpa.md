@@ -1,6 +1,5 @@
 # Registro de Alinhamento e Fluxos de Trabalho — CPA Impacta
 **Fase:** 1 — Levantamento de Requisitos  
-**Data:** 12/11/2026  
 **Participantes:** Equipe de Desenvolvimento (3 integrantes) e Representante CPA / IPC  
 
 ---
