@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal CPA · Faculdade Impacta — Modelo 1: Institucional</title>
+<style>
+  :root{
+    --azul:#0d2a5c;
+    --azul-esc:#071a3c;
+    --preto:#111111;
+    --branco:#ffffff;
+    --cinza:#f4f6fa;
+    --borda:#dfe4ef;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,Helvetica,sans-serif}
+  body{background:var(--branco);color:var(--preto)}
+
+  /* ---------- Topo institucional ---------- */
+  .topbar{background:var(--azul-esc);color:#fff;font-size:.78rem;display:flex;justify-content:space-between;padding:.45rem 5%}
+  header.principal{background:var(--azul);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:1rem 5%;flex-wrap:wrap;gap:.8rem}
+  .logo{display:flex;align-items:center;gap:.7rem}
+  .logo .sigla{background:#fff;color:var(--azul);font-weight:800;font-size:1.05rem;padding:.45rem .6rem;border-radius:6px}
+  .logo small{display:block;font-weight:400;opacity:.85;font-size:.72rem;letter-spacing:.4px}
+  nav ul{list-style:none;display:flex;gap:1.4rem;flex-wrap:wrap}
+  nav a{color:#fff;text-decoration:none;font-size:.9rem;font-weight:600;opacity:.9}
+  nav a:hover,a.ativo{opacity:1;border-bottom:2px solid #fff}
+  .btn-login{background:#fff;color:var(--azul);border:none;font-weight:700;padding:.55rem 1.2rem;border-radius:6px;cursor:pointer;font-size:.85rem}
+
+  /* ---------- Hero ---------- */
+  .hero{background:linear-gradient(120deg,var(--azul-esc),var(--azul));color:#fff;padding:3.2rem 5%;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+  .hero h1{font-size:2rem;max-width:34ch;line-height:1.25}
+  .hero p{margin-top:.7rem;max-width:52ch;opacity:.85;line-height:1.5}
+  .hero .cta{background:#fff;color:var(--azul);border:none;font-weight:700;padding:.75rem 1.5rem;border-radius:6px;cursor:pointer;margin-top:1.2rem;font-size:.9rem}
+  .hero-arte{width:230px;height:150px;border:2px solid rgba(255,255,255,.35);border-radius:12px;display:flex;align-items:flex-end;padding:.7rem;gap:.5rem}
+  .hero-arte span{background:rgba(255,255,255,.85);width:14%;border-radius:4px 4px 0 0}
+
+  .container{max-width:1180px;margin:0 auto;padding:2.4rem 5%}
+  section .titulo{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.4rem;margin-bottom:1.3rem}
+  h2{color:var(--azul);font-size:1.35rem}
+  .titulo small{color:#667;font-size:.8rem}
+
+  /* ---------- Dashboards ---------- */
+  .grade-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.1rem}
+  .card{border:1px solid var(--borda);border-radius:10px;padding:1.15rem;background:var(--branco);box-shadow:0 1px 3px rgba(13,42,92,.06)}
+  .card h3{color:var(--azul);font-size:1rem;margin-bottom:.35rem}
+  .card p{font-size:.85rem;color:#445;line-height:1.45}
+  .tag{display:inline-block;background:var(--cinza);color:var(--azul);font-size:.68rem;font-weight:700;padding:.22rem .6rem;border-radius:20px;margin-top:.7rem;letter-spacing:.4px}
+  .tag.restrito{background:var(--preto);color:#fff}
+  .card .mini-grafico{display:flex;align-items:flex-end;gap:.35rem;height:52px;margin-top:.9rem}
+  .card .mini-grafico span{background:var(--azul);border-radius:3px 3px 0 0;opacity:.85;flex:1}
+
+  /* ---------- Mural ---------- */
+  .mural{background:var(--cinza);border-top:1px solid var(--borda)}
+  .devolutiva{display:flex;gap:1rem;border-left:4px solid var(--azul);background:#fff;border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin-bottom:.9rem;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .devolutiva .data{min-width:86px;color:var(--azul);font-weight:700;font-size:.8rem}
+  .devolutiva h3{font-size:.95rem;margin-bottom:.25rem}
+  .devolutiva p{font-size:.85rem;color:#445;line-height:1.45}
+  .devolutiva .area{font-size:.7rem;background:var(--preto);color:#fff;padding:.15rem .55rem;border-radius:20px;display:inline-block;margin-top:.5rem}
+
+  /* ---------- Relatórios ---------- */
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  th,td{text-align:left;padding:.7rem .8rem;border-bottom:1px solid var(--borda)}
+  th{color:var(--azul);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px}
+  .status{font-size:.7rem;font-weight:700;color:var(--azul)}
+  .status.pub{color:#0a7a3d}
+  .btn-sm{background:var(--azul);color:#fff;border:none;padding:.35rem .8rem;border-radius:5px;cursor:pointer;font-size:.72rem;font-weight:700}
+
+  /* ---------- Contato ---------- */
+  .contato{background:var(--preto);color:#fff}
+  .contato .container{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.2rem}
+  .contato h2{color:#fff}
+  .bloco-contato{background:#1d1d1d;border:1px solid #333;border-radius:10px;padding:1.1rem}
+  .bloco-contato h3{font-size:.9rem;margin-bottom:.4rem}
+  .bloco-contato p,.bloco-contato a{font-size:.82rem;color:#c9cdd6;text-decoration:none;line-height:1.5}
+  .bloco-contato a:hover{color:#fff}
+  footer{background:var(--azul-esc);color:#aab;font-size:.75rem;text-align:center;padding:1.1rem}
+
+  /* ---------- Modal login ---------- */
+  .modal-fundo{position:fixed;inset:0;background:rgba(7,26,60,.75);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
+  .modal-fundo.aberto{display:flex}
+  .modal{background:#fff;border-radius:12px;max-width:430px;width:100%;padding:1.8rem}
+  .modal h2{margin-bottom:.3rem}
+  .modal p.sub{font-size:.82rem;color:#667;margin-bottom:1.1rem}
+  label{display:block;font-size:.75rem;font-weight:700;color:var(--azul);margin:.8rem 0 .3rem}
+  input,select{width:100%;padding:.6rem .7rem;border:1px solid var(--borda);border-radius:6px;font-size:.85rem;background:var(--cinza)}
+  .modal .acoes{display:flex;gap:.7rem;margin-top:1.2rem}
+  .btn-azul{flex:1;background:var(--azul);color:#fff;border:none;padding:.65rem;border-radius:6px;font-weight:700;cursor:pointer}
+  .btn-cinza{background:var(--cinza);color:var(--preto);border:1px solid var(--borda);padding:.65rem 1rem;border-radius:6px;cursor:pointer;font-weight:600}
+  .msg-perfil{background:var(--cinza);border-left:4px solid var(--azul);padding:.6rem .8rem;font-size:.78rem;color:#445;margin-top:.8rem;border-radius:0 6px 6px 0;display:none}
+
+  @media(max-width:760px){
+    nav ul{width:100%;justify-content:space-between}
+    .hero{padding:2.2rem 5%}
+    .hero-arte{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar"><span>Faculdade Impacta</span><span>Comissão Própria de Avaliação (CPA)</span></div>
+
+<header class="principal">
+  <div class="logo">
+    <div class="sigla">CPA</div>
+    <div>Portal de Avaliação Institucional<small>Faculdade Impacta</small></div>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="#inicio" class="ativo">Início</a></li>
+      <li><a href="#dashboards">Dashboards</a></li>
+      <li><a href="#mural">Mural de Devolutivas</a></li>
+      <li><a href="#relatorios">Relatórios</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+  </nav>
+  <button class="btn-login" onclick="abrirLogin()">Entrar</button>
+</header>
+
+<div class="hero" id="inicio">
+  <div>
+    <h1>Transparência e participação: os resultados da avaliação institucional ao alcance de todos.</h1>
+    <p>Centralize dashboards das pesquisas, devolutivas das áreas e relatórios institucionais da Faculdade Impacta — com acesso adequado a cada perfil da comunidade acadêmica.</p>
+    <button class="cta" onclick="abrirLogin()">Acessar os dashboards</button>
+  </div>
+  <div class="hero-arte"><span style="height:40%"></span><span style="height:70%"></span><span style="height:55%"></span><span style="height:90%"></span><span style="height:65%"></span><span style="height:80%"></span></div>
+</div>
+
+<div class="container" id="dashboards">
+  <section>
+    <div class="titulo">
+      <h2>Dashboards das Pesquisas</h2>
+      <small>Visualização conforme o perfil: aluno, coordenador, avaliador externo ou CPA.</small>
+    </div>
+    <div class="grade-cards">
+      <div class="card">
+        <h3>Pesquisa da CPA</h3>
+        <p>Resultados gerais da autoavaliação institucional por segmento e dimensão.</p>
+        <div class="mini-grafico"><span style="height:45%"></span><span style="height:75%"></span><span style="height:60%"></span><span style="height:90%"></span><span style="height:70%"></span></div>
+        <span class="tag">Alunos · Coordenadores · Avaliadores</span>
+      </div>
+      <div class="card">
+        <h3>Avaliação Docente</h3>
+        <p>Índices de satisfação por curso, disciplina e semestre letivo.</p>
+        <div class="mini-grafico"><span style="height:70%"></span><span style="height:55%"></span><span style="height:85%"></span><span style="height:50%"></span><span style="height:65%"></span></div>
+        <span class="tag restrito">Coordenadores · Avaliadores</span>
+      </div>
+      <div class="card">
+        <h3>Pesquisa de Egressos</h3>
+        <p>Inserção no mercado de trabalho e avaliação da formação recebida.</p>
+        <div class="mini-grafico"><span style="height:35%"></span><span style="height:60%"></span><span style="height:80%"></span><span style="height:95%"></span><span style="height:70%"></span></div>
+        <span class="tag restrito">Coordenadores · Avaliadores</span>
+      </div>
+      <div class="card">
+        <h3>Painel Completo — Avaliador Externo</h3>
+        <p>Acesso total a todos os dashboards, séries históricas e indicadores do MEC.</p>
+        <div class="mini-grafico"><span style="height:85%"></span><span style="height:90%"></span><span style="height:75%"></span><span style="height:95%"></span><span style="height:80%"></span></div>
+        <span class="tag restrito">Avaliador Externo · CPA</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="mural" id="mural">
+  <div class="container">
+    <section>
+      <div class="titulo">
+        <h2>Mural de Devolutivas</h2>
+        <small>Página pública — respostas das áreas às demandas levantadas nas pesquisas.</small>
+      </div>
+      <div class="devolutiva">
+        <div class="data">SET/2026</div>
+        <div>
+          <h3>Ampliação do acervo digital da biblioteca</h3>
+          <p>Em resposta à demanda por mais e-books e periódicos, a Coordenação de Biblioteca adquiriu novas bases de dados com acesso remoto para alunos EAD e presenciais.</p>
+          <span class="area">Biblioteca</span>
+        </div>
+      </div>
+      <div class="devolutiva">
+        <div class="data">AGO/2026</div>
+        <div>
+          <h3>Revisão das estratégias de comunicação institucional</h3>
+          <p>A Direção Acadêmica publicou novo plano de comunicação após apontamentos sobre falhas na divulgação de prazos e eventos. Calendário unificado disponível no portal.</p>
+          <span class="area">Direção Acadêmica</span>
+        </div>
+      </div>
+      <div class="devolutiva">
+        <div class="data">JUL/2026</div>
+        <div>
+          <h3>Tutoria reforçada nas disciplinas com maior índice de reprovação</h3>
+          <p>Monitorias contratadas e horários ampliados nos cursos com piores índices apontados na avaliação docente do 1º semestre.</p>
+          <span class="area">Coordenação de Curso</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="container" id="relatorios">
+  <section>
+    <div class="titulo">
+      <h2>Relatórios e Boletins</h2>
+      <small>Repositório de documentos institucionais.</small>
+    </div>
+    <table>
+      <thead><tr><th>Documento</th><th>Ano</th><th>Situação</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Relatório de Autoavaliação Institucional — Ciclo completo</td><td>2025</td><td class="status pub">Publicado</td><td><button class="btn-sm">Visualizar</button></td></tr>
+        <tr><td>Boletim Informativo CPA nº 12</td><td>2026</td><td class="status pub">Publicado</td><td><button class="btn-sm">Visualizar</button></td></tr>
+        <tr><td>Sumário Executivo — Pesquisa de Egressos</td><td>2026</td><td class="status">Em elaboração</td><td><button class="btn-sm" disabled style="opacity:.4">Visualizar</button></td></tr>
+        <tr><td>Plano de Ação — demandas da comunidade</td><td>2026</td><td class="status pub">Publicado</td><td><button class="btn-sm">Visualizar</button></td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<div class="contato" id="contato">
+  <div class="container">
+    <section>
+      <h2>Fale com a CPA</h2>
+      <p style="color:#c9cdd6;font-size:.85rem;grid-column:1/-1;margin-top:-.6rem">Espaço para interação com a Comissão Própria de Avaliação.</p>
+      <div class="bloco-contato"><h3>Google Chats</h3><p>Converse com a equipe da CPA em horário comercial.</p><p><a href="#">Entrar na sala da CPA →</a></p></div>
+      <div class="bloco-contato"><h3>Google Meet</h3><p>Atendimento por videochamada com agendamento prévio.</p><p><a href="#">Agendar reunião →</a></p></div>
+      <div class="bloco-contato"><h3>E-mail institucional</h3><p>cpa@faculdadeimpacta.edu.br</p><p><a href="#">Enviar mensagem →</a></p></div>
+    </section>
+  </div>
+</div>
+
+<footer>© 2026 Comissão Própria de Avaliação · Faculdade Impacta — Portal desenvolvido em projeto de extensão</footer>
+
+<!-- Modal de login -->
+<div class="modal-fundo" id="modalLogin">
+  <div class="modal">
+    <h2>Entrar no portal</h2>
+    <p class="sub">Selecione seu perfil para visualizar os dashboards permitidos.</p>
+    <label for="usuario">E-mail institucional</label>
+    <input type="email" id="usuario" placeholder="seu.nome@faculdadeimpacta.edu.br">
+    <label for="senha">Senha</label>
+    <input type="password" id="senha" placeholder="••••••••">
+    <label for="perfil">Nível de acesso</label>
+    <select id="perfil">
+      <option value="aluno">Aluno (presencial / EAD)</option>
+      <option value="coordenador">Coordenador de Curso</option>
+      <option value="externo">Avaliador Externo (MEC)</option>
+      <option value="admin">Administrador (CPA)</option>
+    </select>
+    <div class="msg-perfil" id="msgPerfil"></div>
+    <div class="acoes">
+      <button class="btn-azul" onclick="entrar()">Acessar</button>
+      <button class="btn-cinza" onclick="fecharLogin()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const permissoes = {
+    aluno: 'Alunos acessam: Pesquisa da CPA.',
+    coordenador: 'Coordenadores acessam: Pesquisa da CPA, Avaliação Docente e Pesquisa de Egressos.',
+    externo: 'Avaliadores externos acessam: todos os dashboards e séries históricas.',
+    admin: 'Administradores (CPA) acessam: todos os dashboards e ferramentas de gestão.'
+  };
+  function abrirLogin(){document.getElementById('modalLogin').classList.add('aberto')}
+  function fecharLogin(){document.getElementById('modalLogin').classList.remove('aberto')}
+  function entrar(){
+    const p = document.getElementById('perfil').value;
+    const msg = document.getElementById('msgPerfil');
+    msg.style.display='block';
+    msg.textContent = permissoes[p];
+    setTimeout(()=>{ fecharLogin(); document.getElementById('dashboards').scrollIntoView({behavior:'smooth'}); }, 1200);
+  }
+  document.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',e=>{
+    document.querySelectorAll('nav a').forEach(x=>x.classList.remove('ativo'));
+    a.classList.add('ativo');
+  }));
+</script>
+</body>
+</html>
