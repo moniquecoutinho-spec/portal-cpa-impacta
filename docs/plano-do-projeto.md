@@ -64,7 +64,7 @@ Realizar testes funcionais, de usabilidade e de segurança com usuários reais p
 
 Publicar o portal em produção, treinar os usuários e fornecer documentação técnica.
 
-- [ ] Configurar o ambiente de produção e realizar o deploy do portal
+- [x] Configurar o ambiente de produção e realizar o deploy do portal → [Ambiente](fase-3-desenvolvimento/01-configuracao-do-ambiente.md) (Vercel, publicação a partir da `main`)
 - [ ] Criar manual do usuário e documentação técnica do código
 - [ ] Realizar treinamentos com a CPA e demais usuários
 - [ ] Acompanhar o uso inicial e coletar feedback para melhorias futuras
