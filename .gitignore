@@ -1,0 +1,22 @@
+# Segredos (NUNCA versionar)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,15 @@
+config:
+  default: true
+  MD013: false # tamanho de linha
+  MD024:
+    siblings_only: true
+  MD033: false # HTML inline
+  MD036: false # ênfase usada como título
+  MD040: false # bloco de código sem linguagem (árvores de pastas)
+  MD041: false # primeira linha como título (templates)
+  MD060: false # alinhamento visual de tabelas
+
+ignores:
+  - 'node_modules/**'
+  - '.venv/**'
+  - '.claude/**'
