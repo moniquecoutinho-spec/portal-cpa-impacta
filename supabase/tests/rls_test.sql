@@ -4,16 +4,16 @@
 -- =============================================================================
 
 begin;
-select plan(10);
+select plan(11);
 
 -- -----------------------------------------------------------------------------
--- Estrutura e seed
+-- Estrutura e dashboards oficiais
 -- -----------------------------------------------------------------------------
 select is((select count(*)::int from public.perfis), 4,
   'existem 4 perfis cadastrados');
 
-select is((select count(*)::int from public.dashboards), 3,
-  'seed cria os 3 dashboards (DASH-01..03)');
+select is((select count(*)::int from public.dashboards), 4,
+  'existem os 4 dashboards oficiais (DASH-01..04)');
 
 -- -----------------------------------------------------------------------------
 -- Cadastro: sempre nasce aluno, mesmo que o cliente tente enviar outro perfil
@@ -52,8 +52,10 @@ reset role;
 set local request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
 set local role authenticated;
 
-select is((select count(*)::int from public.dashboards), 1,
-  'aluno vê apenas o DASH-01 (RN02)');
+select is((select count(*)::int from public.dashboards), 2,
+  'aluno vê só os relatórios de alunos, DASH-01 e DASH-02 (RN02)');
+select is((select count(*)::int from public.dashboards where codigo in ('DASH-03', 'DASH-04')), 0,
+  'aluno não vê os relatórios de professores e corpo técnico (RN02)');
 
 -- tentativa de autopromoção: não há policy de UPDATE para o próprio usuário
 update public.usuarios
@@ -77,8 +79,8 @@ update public.usuarios
  where id = '11111111-1111-1111-1111-111111111111';
 
 set local role authenticated;
-select is((select count(*)::int from public.dashboards), 3,
-  'coordenador vê os 3 dashboards');
+select is((select count(*)::int from public.dashboards), 4,
+  'coordenador vê os 4 dashboards');
 reset role;
 
 -- -----------------------------------------------------------------------------
@@ -87,10 +89,10 @@ reset role;
 update public.usuarios
    set perfil_id = (select id from public.perfis where codigo = 'avaliador_mec')
  where id = '11111111-1111-1111-1111-111111111111';
-update public.dashboards set ativo = false where codigo = 'DASH-03';
+update public.dashboards set ativo = false where codigo = 'DASH-04';
 
 set local role authenticated;
-select is((select count(*)::int from public.dashboards), 2,
+select is((select count(*)::int from public.dashboards), 3,
   'avaliador MEC vê todos os dashboards ativos e nenhum inativo (RN03)');
 reset role;
 
