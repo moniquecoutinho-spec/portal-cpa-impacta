@@ -19,6 +19,7 @@ Para o desenvolvimento integrado entre front-end, back-end e banco de dados, a e
 |---|---|---|
 | **Back-end** | Python 3.12+ com Flask 3 | Rotas, sessões de login, regras de perfil e upload de arquivos. |
 | **Sessão e login** | Flask-Login | Mantém o usuário autenticado e protege as rotas restritas. |
+| **Proteção CSRF** | Flask-WTF | Token em todo formulário `POST`; envios sem token são recusados. |
 | **Banco de dados** | PostgreSQL do **Supabase** | Armazenamento relacional de usuários, perfis, dashboards, devolutivas, documentos e ciclos avaliativos. |
 | **Acesso ao banco** | Flask-SQLAlchemy + psycopg 3 | Consultas parametrizadas pelo ORM, via *pooler* do Supabase. |
 | **Autenticação e arquivos** | Supabase Auth e Supabase Storage (SDK `supabase`) | Validação de e-mail e senha; armazenamento dos PDFs no bucket `documentos`. |

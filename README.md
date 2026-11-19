@@ -6,7 +6,7 @@ Portal web da **Comissão Própria de Avaliação (CPA)** da Faculdade Impacta. 
 - **Dashboards analíticos restritos**: painéis do Looker Studio (antigo Google Data Studio), exibidos por `<iframe>` conforme o perfil do usuário autenticado.
 - **Painel administrativo**: a CPA gerencia dashboards, devolutivas, documentos e usuários sem alterar o código.
 
-> **Status:** Fases 1 a 3 concluídas e todos os requisitos funcionais (RF01–RF09) implementados. Portal publicado na Vercel. Em andamento: revisão de acessibilidade (Fase 4), testes e validação (Fase 5), manual e treinamento (Fase 6).
+> **Status:** Fases 1 a 3 concluídas e todos os requisitos funcionais (RF01–RF09) implementados. Portal em produção na Vercel, com os 4 dashboards oficiais da CPA. Em andamento: revisão de acessibilidade (Fase 4), testes e validação (Fase 5), manual e treinamento (Fase 6).
 
 ---
 
@@ -87,7 +87,8 @@ O **Visitante** não é um perfil cadastrado: é o usuário sem login (papel `an
 | Autenticação | **Supabase Auth** | Login por e-mail e senha, hash bcrypt, emissão de JWT |
 | Arquivos | **Supabase Storage** | Bucket `documentos`, somente PDF |
 | Dashboards | **Looker Studio** | Painéis incorporados por `<iframe>` |
-| Bibliotecas Python | `Flask-Login`, `Flask-SQLAlchemy`, `psycopg`, `supabase`, `python-dotenv` | Sessão, acesso ao banco, driver PostgreSQL, Auth do Supabase, leitura do `.env` |
+| Bibliotecas Python | `Flask-Login`, `Flask-WTF`, `Flask-SQLAlchemy`, `psycopg`, `supabase`, `python-dotenv` | Sessão, proteção CSRF, acesso ao banco, driver PostgreSQL, Auth do Supabase, leitura do `.env` |
+| Hospedagem | **Vercel** | Publica a branch `main` automaticamente |
 | Versionamento | **Git + GitHub** | Código, migrations e documentação (RNF05) |
 
 ### Por que Supabase em vez de MySQL
@@ -134,10 +135,12 @@ Supabase Auth          PostgreSQL (pooler)
 | Área | Rota | Quem acessa |
 |---|---|---|
 | Pública | `/` início, `/devolutivas`, `/relatorios`, `/contato`, `/login` | Todos, sem login (RN01) |
+| Pública | `/saude` | Diagnóstico: confirma a conexão do Flask com o banco |
 | Restrita | `/dashboards` | Logados; cada perfil vê só os painéis liberados |
 | Restrita | `/aluno/avaliacoes` | Aluno |
 | Restrita | `/coordenador` | Coordenador e admin |
-| Restrita | `/admin` (usuários) | Admin |
+| Restrita | `/admin` (usuários; `/admin/escuro` é a versão com tema escuro) | Admin |
+| Restrita | `/minha-conta`, `/logout` | Logados |
 | Gestão (admin) | Formulários nas próprias páginas de dashboards, devolutivas e relatórios | Admin |
 
 **Quem protege o quê:**
@@ -163,6 +166,7 @@ portal-cpa-impacta/
 ├── .env.example            # modelo das variáveis de ambiente
 ├── .env                    # valores reais (NÃO versionado)
 ├── .gitignore
+├── .markdownlint-cli2.yaml # regras de lint dos arquivos Markdown
 ├── pyproject.toml          # metadados e regras do ruff
 ├── requirements.txt        # dependências Python
 ├── app.py                  # aplicação Flask: áreas do aluno, coordenador e admin; /saude
@@ -217,7 +221,8 @@ usuarios ──N:1──► perfis
      │
      ├─ updated_by ──► dashboards ◄──N:M──► perfis   (via dashboard_perfis)
      ├─ created_by ──► devolutivas
-     └─ created_by ──► documentos ──(storage_path)──► Storage: bucket "documentos"
+     ├─ created_by ──► documentos ──(storage_path)──► Storage: bucket "documentos"
+     └─ aluno_id ──► participacoes ◄── avaliacoes
 ```
 
 | Tabela | Função |
@@ -228,6 +233,8 @@ usuarios ──N:1──► perfis
 | `dashboard_perfis` | Quais perfis acessam cada dashboard (N:M) |
 | `devolutivas` | Título, área responsável, ação, status (`planejado` / `em_andamento` / `concluido`), data |
 | `documentos` | Metadados do PDF: título, descrição, categoria, ano, `storage_path` |
+| `avaliacoes` | Ciclos de avaliação institucional: título, período (`data_inicio`, `data_fim`) e status. Cadastrados pelo coordenador |
+| `participacoes` | Um registro por aluno e ciclo (`respondida`). Base do indicador de participação |
 
 ### Funções e triggers
 
@@ -248,6 +255,8 @@ usuarios ──N:1──► perfis
 | `dashboard_perfis` | sem acesso | — | tudo |
 | `devolutivas` | leitura | leitura | tudo |
 | `documentos` | leitura | leitura | tudo |
+| `avaliacoes` | sem acesso | leitura (coordenador e admin também gerenciam) | tudo |
+| `participacoes` | sem acesso | só as próprias (coordenador e admin veem e gerenciam todas) | tudo |
 | Storage `documentos` | leitura | leitura | upload, update, delete |
 
 Admin e Avaliador MEC veem todos os dashboards **por regra na policy** (RN03), sem precisar de linhas em `dashboard_perfis`.
@@ -346,6 +355,7 @@ python -m scripts.criar_usuarios_teste --redefinir # também troca a senha das e
 - Coordenador e Avaliador MEC veem os 4 dashboards.
 - Aluno **não** consegue alterar `usuarios`.
 - Upload de arquivo que não seja PDF é recusado.
+- Formulário `POST` sem o token CSRF é recusado.
 
 ---
 
@@ -396,7 +406,7 @@ Conforme o [Plano do projeto](docs/plano-do-projeto.md). Requisitos completos em
 | 3 | Portal: ambiente, login, controle de acesso, dashboards, home | ✅ Concluída |
 | 4 | Mural, relatórios, contato, acessibilidade | 🟡 Mural, relatórios e contato prontos e documentados; falta revisão de acessibilidade |
 | 5 | Testes funcionais, de usabilidade e de segurança | ⏳ A fazer |
-| 6 | Deploy, manual do usuário e treinamento | 🟡 Deploy na Vercel; faltam manual e treinamento |
+| 6 | Deploy, manual do usuário e treinamento | 🟡 Deploy na Vercel concluído; faltam manual e treinamento |
 
 ### Próximos passos
 

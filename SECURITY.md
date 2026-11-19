@@ -28,10 +28,11 @@ O retorno inicial é feito em até 5 dias úteis.
 - Row Level Security em todas as tabelas, com testes automatizados (`supabase/tests/`).
 - Segredos apenas em `.env` (não versionado); varredura com Gitleaks em cada PR.
 - Dependabot para alertas e atualizações de dependências.
-- CodeQL para análise estática quando habilitado.
+- CodeQL para análise estática em cada PR.
+- Token CSRF em todos os formulários `POST` e cookie de sessão `HttpOnly` e `SameSite=Lax`.
 
 ## Se uma chave vazar
 
 1. No Supabase Dashboard › Project Settings › **API Keys**, gere uma nova chave e revogue a antiga.
-2. Atualize o `.env` local.
+2. Atualize o `.env` local e as variáveis de ambiente do projeto na Vercel (e faça um novo deploy, para elas valerem).
 3. Remova o arquivo exposto do histórico do Git.
