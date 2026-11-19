@@ -40,10 +40,11 @@ user=postgres
 ```bash
 supabase login
 supabase link --project-ref tgtwvcegopwqihkjrlzf
-supabase db push        # aplica supabase/migrations/
+supabase db push --linked   # aplica supabase/migrations/ no projeto remoto
 ```
 
 Os 4 dashboards oficiais da CPA são criados pela própria migration `20261119000000_dashboards_oficiais.sql`; não é preciso rodar o seed em produção.
+As devolutivas de exemplo ficam em `supabase/seed.sql`, que o `db push` não executa: para tê-las no banco remoto, cole o `insert` no SQL Editor.
 
 ---
 

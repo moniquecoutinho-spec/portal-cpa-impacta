@@ -156,5 +156,5 @@ Usadas pela área do coordenador (cadastro dos ciclos) e pela área do aluno (co
 | `supabase/migrations/20261116100000_corrige_leitura_dashboard_perfis.sql` | Permite ao aluno e ao coordenador lerem os próprios vínculos |
 | `supabase/migrations/20261117000000_avaliacoes_participacoes.sql` | Tabelas de ciclos avaliativos e participação |
 | `supabase/migrations/20261119000000_dashboards_oficiais.sql` | Os 4 dashboards oficiais da CPA (DASH-01 a 04) e os vínculos com perfis |
-| `supabase/seed.sql` | Carga inicial do banco local (os dashboards ficam na migration acima) |
+| `supabase/seed.sql` | Devolutivas de exemplo para o banco local e o CI (os dashboards ficam na migration acima) |
 | `supabase/tests/rls_test.sql` | Testes automáticos das regras de acesso (pgTAP) |

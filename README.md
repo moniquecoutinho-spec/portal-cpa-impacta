@@ -156,7 +156,7 @@ Supabase Auth          PostgreSQL (pooler)
 ## Estrutura do repositório
 
 ```
-cpa-developer/
+portal-cpa-impacta/
 ├── README.md
 ├── LICENSE
 ├── SECURITY.md
@@ -196,10 +196,11 @@ cpa-developer/
     ├── migrations/
     │   ├── 20261116000000_schema_inicial.sql
     │   ├── 20261116100000_corrige_leitura_dashboard_perfis.sql
-    │   └── 20261117000000_avaliacoes_participacoes.sql
+    │   ├── 20261117000000_avaliacoes_participacoes.sql
+    │   └── 20261119000000_dashboards_oficiais.sql
     ├── tests/
     │   └── rls_test.sql    # testes pgTAP das regras de acesso
-    └── seed.sql
+    └── seed.sql            # devolutivas de exemplo (banco local e CI)
 ```
 
 ---
@@ -302,12 +303,14 @@ Detalhes da conexão e o que fazer se uma chave vazar: [docs/setup-supabase.md](
 ```bash
 supabase login
 supabase link --project-ref <project-ref>
-supabase db push                  # migrations, incluindo os dashboards oficiais
-supabase migration list --remote  # confere o que foi aplicado
+supabase db push --linked                  # migrations, incluindo os dashboards oficiais
+supabase migration list --linked           # confere o que foi aplicado
 ```
 
+> As migrations são aplicadas **manualmente** com `supabase db push --linked`; a integração do Supabase com o GitHub não é usada.
+> O `db push` não roda o `seed.sql`: para popular as devolutivas de exemplo no banco remoto, cole o `insert` do seed no SQL Editor.
 > Se aplicar uma migration pelo SQL Editor, registre-a depois com
-> `supabase migration repair --status applied <versao> --remote`; sem isso, o deploy automático tenta aplicá-la de novo.
+> `supabase migration repair --status applied <versao> --linked`, para o `db push` não tentar aplicá-la de novo.
 
 ### 3. Rodar o Flask
 
@@ -397,10 +400,11 @@ Conforme o [Plano do projeto](docs/plano-do-projeto.md). Requisitos completos em
 
 ### Próximos passos
 
-1. Testar os 4 dashboards com uma conta Google da Impacta e atualizar as capturas de tela.
+1. Atualizar as capturas de tela com os 4 dashboards oficiais.
 2. Revisão de acessibilidade (contraste, teclado, leitores de tela).
 3. Testes automatizados das rotas Flask (`tests/`) e testes nos demais navegadores.
-4. Manual do usuário e treinamento da CPA.
+4. Definir com a CPA o acesso do Avaliador MEC aos relatórios, que exigem conta Google da Impacta.
+5. Manual do usuário e treinamento da CPA.
 
 ---
 
