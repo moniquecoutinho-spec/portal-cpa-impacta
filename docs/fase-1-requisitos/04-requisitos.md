@@ -51,3 +51,5 @@
 | **RN02** | Isolamento de dados sensíveis | Dashboards de Avaliação Docente e Egressos são restritos a Coordenadores, Avaliadores Externos e Administradores; **não podem ser listados nem acessados por alunos**. |
 | **RN03** | Visão integral para avaliação externa | O Avaliador Externo (MEC) tem leitura irrestrita de todos os dashboards ativos, sem permissão de alteração. |
 | **RN04** | Formato de documentos | A área de relatórios aceita **exclusivamente PDF**, garantindo compatibilidade universal de leitura. |
+
+> **Atualização (19/11/2026):** com os relatórios oficiais, a RN02 se aplica aos relatórios de **Professores** e **Corpo Técnico Administrativo**, que não são listados para alunos. Ver o [catálogo](03-catalogo-dashboards-documentos.md).

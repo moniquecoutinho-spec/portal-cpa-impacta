@@ -43,7 +43,7 @@ supabase link --project-ref tgtwvcegopwqihkjrlzf
 supabase db push        # aplica supabase/migrations/
 ```
 
-Para carregar os dashboards de demonstração, rode o conteúdo de `supabase/seed.sql` no **SQL Editor** do Dashboard.
+Os 4 dashboards oficiais da CPA são criados pela própria migration `20261119000000_dashboards_oficiais.sql`; não é preciso rodar o seed em produção.
 
 ---
 

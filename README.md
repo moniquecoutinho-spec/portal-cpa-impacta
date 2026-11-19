@@ -39,13 +39,16 @@ Portal web da **Comissão Própria de Avaliação (CPA)** da Faculdade Impacta. 
 
 ### Dashboards
 
-| Código | Nome | Conteúdo | Perfis |
-|---|---|---|---|
-| DASH-01 | Pesquisa Institucional CPA | Satisfação geral, infraestrutura, laboratórios, biblioteca, atendimento | Aluno, Coordenador, Avaliador MEC, Admin |
-| DASH-02 | Avaliação Docente por Curso | Didática, plano de ensino, feedback docente | Coordenador, Avaliador MEC, Admin |
-| DASH-03 | Acompanhamento de Egressos | Empregabilidade, área de atuação, faixa salarial, continuidade acadêmica | Coordenador, Avaliador MEC, Admin |
+Relatórios oficiais da pesquisa da CPA no Looker Studio, separados por público respondente:
 
-As URLs atuais são **links de demonstração**. O Admin as substitui pelo painel quando a CPA enviar os links oficiais.
+| Código | Relatório | Perfis |
+|---|---|---|
+| DASH-01 | Pesquisa CPA — Aluno(a) Presencial | Aluno, Coordenador, Avaliador MEC, Admin |
+| DASH-02 | Pesquisa CPA — Aluno(a) EAD | Aluno, Coordenador, Avaliador MEC, Admin |
+| DASH-03 | Pesquisa CPA — Professores | Coordenador, Avaliador MEC, Admin |
+| DASH-04 | Pesquisa CPA — Corpo Técnico Administrativo | Coordenador, Avaliador MEC, Admin |
+
+Os dados dos relatórios ainda são **fictícios**, com a mesma estrutura da pesquisa real. Eles só abrem para **contas Google da Impacta** logadas no navegador, e a permissão do Looker é independente do login do portal (detalhes em [Integração dos dashboards](docs/fase-3-desenvolvimento/03-integracao-dos-dashboards.md)).
 
 ### Documentos
 
@@ -66,9 +69,10 @@ O **Visitante** não é um perfil cadastrado: é o usuário sem login (papel `an
 | Mural de Devolutivas | Leitura | Leitura | Leitura | Leitura | Leitura + CRUD |
 | Relatórios e Boletins | Baixar | Baixar | Baixar | Baixar | Baixar + Upload/Excluir |
 | Contato | ✅ | ✅ | ✅ | ✅ | ✅ |
-| DASH-01 Pesquisa CPA | ❌ | ✅ | ✅ | ✅ | ✅ + gerenciar link |
-| DASH-02 Avaliação Docente | ❌ | ❌ | ✅ | ✅ | ✅ + gerenciar link |
-| DASH-03 Egressos | ❌ | ❌ | ✅ | ✅ | ✅ + gerenciar link |
+| DASH-01 Aluno(a) Presencial | ❌ | ✅ | ✅ | ✅ | ✅ + gerenciar link |
+| DASH-02 Aluno(a) EAD | ❌ | ✅ | ✅ | ✅ | ✅ + gerenciar link |
+| DASH-03 Professores | ❌ | ❌ | ✅ | ✅ | ✅ + gerenciar link |
+| DASH-04 Corpo Técnico | ❌ | ❌ | ✅ | ✅ | ✅ + gerenciar link |
 | Gestão de usuários | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 ---
@@ -298,7 +302,7 @@ Detalhes da conexão e o que fazer se uma chave vazar: [docs/setup-supabase.md](
 ```bash
 supabase login
 supabase link --project-ref <project-ref>
-supabase db push --include-seed   # migrations + dashboards de demonstração
+supabase db push                  # migrations, incluindo os dashboards oficiais
 supabase migration list --remote  # confere o que foi aplicado
 ```
 
@@ -335,8 +339,8 @@ python -m scripts.criar_usuarios_teste --redefinir # também troca a senha das e
 ### Checklist de permissões
 
 - Visitante lê `devolutivas` e `documentos`, mas **não** `dashboards`.
-- Aluno vê apenas o DASH-01.
-- Coordenador e Avaliador MEC veem os 3 dashboards.
+- Aluno vê só DASH-01 e DASH-02 (relatórios de alunos).
+- Coordenador e Avaliador MEC veem os 4 dashboards.
 - Aluno **não** consegue alterar `usuarios`.
 - Upload de arquivo que não seja PDF é recusado.
 
@@ -372,7 +376,7 @@ python -m scripts.criar_usuarios_teste --redefinir # também troca a senha das e
 ### Regras de negócio
 
 - **RN01** — Devolutivas, Relatórios/Boletins e Contato **nunca** exigem login.
-- **RN02** — Dashboards de Avaliação Docente e Egressos não podem ser listados nem acessados por alunos.
+- **RN02** — Os relatórios de Professores e Corpo Técnico Administrativo não podem ser listados nem acessados por alunos.
 - **RN03** — Avaliador MEC tem leitura irrestrita dos dashboards ativos, sem edição.
 - **RN04** — Apenas PDF é aceito na área de relatórios.
 
@@ -393,7 +397,7 @@ Conforme o [Plano do projeto](docs/plano-do-projeto.md). Requisitos completos em
 
 ### Próximos passos
 
-1. Trocar os links de demonstração dos dashboards pelos oficiais da CPA (pelo próprio portal, em `/dashboards`).
+1. Testar os 4 dashboards com uma conta Google da Impacta e atualizar as capturas de tela.
 2. Revisão de acessibilidade (contraste, teclado, leitores de tela).
 3. Testes automatizados das rotas Flask (`tests/`) e testes nos demais navegadores.
 4. Manual do usuário e treinamento da CPA.

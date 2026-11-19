@@ -39,6 +39,8 @@
 | Dashboard: Pesquisa de Egressos | ❌ | ❌ | 👁️ | 👁️ | 👁️ ✏️ gerenciar link |
 | Gestão de Usuários e Perfis | ❌ | ❌ | ❌ | ❌ | ✅ |
 
+> **Atualização (19/11/2026):** com os relatórios oficiais da CPA, os dashboards passaram a ser divididos por público respondente. O aluno vê os relatórios de **Aluno(a) Presencial** e **Aluno(a) EAD**; os de **Professores** e **Corpo Técnico Administrativo** ficam com coordenadores, avaliadores e a CPA. Ver o [catálogo](03-catalogo-dashboards-documentos.md).
+
 ---
 
 ## 3. Regras de controle e isolamento de acesso

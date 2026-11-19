@@ -24,7 +24,7 @@ Avaliar os protótipos de tela em HTML/CSS e a estrutura do banco de dados frent
 | **Transparência pública** | Confirmado que o mural de devolutivas, os relatórios em PDF e a página de contato funcionam **sem login**, atendendo às normas de publicidade institucional (RN01). |
 | **Identificação do perfil** | Aprovada a exibição do nome e do perfil ativo no menu após o login, orientando o usuário sobre o seu nível de acesso. |
 | **Canais de atendimento** | Validada a disposição dos botões diretos para Google Chat e Google Meet na página de contato. |
-| **Isolamento dos dashboards** | Confirmado que o aluno vê apenas a Pesquisa da CPA e que Avaliação Docente e Egressos ficam restritos a coordenadores, avaliadores externos e CPA (RN02). |
+| **Isolamento dos dashboards** | Confirmado que o aluno vê apenas a Pesquisa da CPA e que Avaliação Docente e Egressos ficam restritos a coordenadores, avaliadores externos e CPA (RN02). Com os relatórios oficiais, a regra passou a valer para os relatórios de Professores e Corpo Técnico. |
 
 ---
 

@@ -6,8 +6,8 @@
 {% block conteudo %}
 {% set admin = current_user.perfil == "admin" %}
 {% set descricao_perfil = {
-  "aluno": "Como aluno, você vê o painel da Pesquisa Institucional da CPA.",
-  "coordenador": "Como coordenador, você vê a Pesquisa da CPA, a Avaliação Docente e a Pesquisa de Egressos.",
+  "aluno": "Como aluno, você vê os resultados da pesquisa da CPA respondida pelos alunos presenciais e EAD.",
+  "coordenador": "Como coordenador, você vê os resultados da pesquisa da CPA de alunos, professores e corpo técnico.",
   "avaliador": "Como avaliador externo, você tem leitura integral de todos os dashboards ativos.",
   "admin": "Como administrador, você vê todos os dashboards e gerencia os links e as permissões.",
 } %}
@@ -18,6 +18,13 @@
     <p>{{ descricao_perfil.get(current_user.perfil) }}</p>
   </div>
 </header>
+
+<p class="mensagem mensagem-info aviso-google">
+  <strong>Os relatórios abrem com a conta Google da Impacta.</strong>
+  Se aparecer "acesso negado" no painel, entre na sua conta <b>@aluno.impacta.edu.br</b> ou
+  <b>@impacta.edu.br</b> neste navegador (por exemplo, no Gmail) e recarregue a página.
+  O login do portal e o acesso do Google são separados.
+</p>
 
 {% if admin %}
 <details class="cartao painel-admin">

@@ -614,3 +614,6 @@ input[type="file"] { padding: 0.5rem; }
 .erro p { color: var(--texto-suave); margin: 0.75rem 0 1.25rem; }
 .erro .acoes { justify-content: center; }
 .login-caixa .link-voltar { margin-bottom: 1.5rem; }
+
+/* Aviso de conta Google acima dos dashboards */
+.aviso-google { margin-bottom: 1.25rem; line-height: 1.5; }

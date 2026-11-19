@@ -18,7 +18,9 @@ Para acelerar a validação visual e garantir fidelidade técnica, a equipe dese
 
 Os protótipos evoluíram para as telas definitivas do portal: todas as páginas usam um layout comum (`templates/_layout.html`) e um único arquivo de estilos (`static/css/base.css`), o que mantém a identidade visual igual em todos os perfis.
 
-> As capturas abaixo são do portal em funcionamento. Os dashboards aparecem com o aviso do Google porque o banco ainda usa **links de demonstração**; quando a CPA enviar os endereços oficiais, o admin troca os links pelo próprio portal.
+> As capturas abaixo são do portal em funcionamento, feitas com os **links de demonstração**, por isso os painéis aparecem com o aviso do Google.
+>
+> **Atualização (19/11/2026):** os 4 relatórios oficiais da CPA já estão cadastrados (Aluno(a) Presencial, Aluno(a) EAD, Professores e Corpo Técnico Administrativo). O aluno vê os dois relatórios de alunos; o coordenador vê os quatro. Os relatórios abrem com a conta Google da Impacta logada no navegador.
 
 ---
 
