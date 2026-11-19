@@ -30,7 +30,7 @@ Para o desenvolvimento integrado entre front-end, back-end e banco de dados, a e
 
 ---
 
-## 2. Estrutura de diretórios do repositório (`cpa-developer`)
+## 2. Estrutura de diretórios do repositório (`portal-cpa-impacta`)
 
 | Caminho | Conteúdo |
 |---|---|
@@ -54,10 +54,10 @@ Credenciais (chaves do Supabase, senha do banco, chave de sessão do Flask) fica
 
 | Prática | Como foi aplicada |
 |---|---|
-| **Repositório público** | [`4Diovanni/cpa-developer`](https://github.com/4Diovanni/cpa-developer), com acesso de colaboração para os integrantes (RNF05). |
+| **Repositório público** | [`moniquecoutinho-spec/portal-cpa-impacta`](https://github.com/moniquecoutinho-spec/portal-cpa-impacta), com acesso de colaboração para os integrantes (RNF05). |
 | **Branches por entrega** | Nada é feito direto na `main`. Cada mudança nasce em uma branch `<tipo>/<descricao>` (ex.: `feat/area-publica-e-dashboards`) e entra por *pull request*. |
 | **Commits padronizados** | Padrão *Conventional Commits* (`feat`, `fix`, `docs`, `refactor`…), com mensagens descritivas em português. |
 | **Verificação automática (CI)** | A cada *pull request*, o GitHub Actions confere o padrão do título e da branch, procura segredos expostos (Gitleaks), valida o Markdown e os links, aplica as migrations em um Postgres limpo, roda os testes de RLS e faz o lint do Python (ruff) e a auditoria das dependências. |
 | **Segurança contínua** | CodeQL analisa o código e o Dependabot abre atualizações semanais das dependências. |
-| **Banco sincronizado** | A integração do Supabase com o GitHub aplica as migrations novas no banco de produção quando o *pull request* é aceito. |
+| **Banco sincronizado** | As migrations novas são aplicadas no banco de produção manualmente, com `supabase db push --linked`, depois que o *pull request* é aceito. |
 | **Publicação** | A Vercel publica a versão da `main` automaticamente. |

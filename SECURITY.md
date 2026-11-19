@@ -3,7 +3,7 @@
 ## Como reportar uma vulnerabilidade
 
 **Não abra uma issue pública.** Use o recurso
-[Report a vulnerability](https://github.com/4Diovanni/cpa-developer/security/advisories/new) na aba **Security** do repositório
+[Report a vulnerability](https://github.com/moniquecoutinho-spec/portal-cpa-impacta/security/advisories/new) na aba **Security** do repositório
 ou contate diretamente os mantenedores.
 
 Inclua, se possível:
