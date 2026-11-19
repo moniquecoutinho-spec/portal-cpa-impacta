@@ -1,0 +1,39 @@
+version: 2
+
+updates:
+  # Versões das actions usadas nos workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: America/Sao_Paulo
+    commit-message:
+      prefix: ci
+      include: scope
+    labels:
+      - dependencias
+      - ci
+    groups:
+      github-actions:
+        patterns: ['*']
+
+  # Dependências Python do backend Flask (requirements.txt)
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependencias
+      - python
+    groups:
+      python-minor-patch:
+        update-types: [minor, patch]

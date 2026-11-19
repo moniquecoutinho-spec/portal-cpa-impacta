@@ -1,0 +1,73 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 9 * * 1' # segunda-feira, 06:00 (Brasília)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Code scanning é gratuito em repositório público. Em privado exige GitHub
+  # Advanced Security; nesse caso a análise é pulada sem falhar o pipeline.
+  elegibilidade:
+    name: Verificar elegibilidade
+    runs-on: ubuntu-latest
+    outputs:
+      habilitado: ${{ steps.check.outputs.habilitado }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          private=$(gh api "repos/${{ github.repository }}" --jq '.private')
+          if [ "$private" = "false" ]; then
+            echo "habilitado=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "habilitado=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Repositório privado: CodeQL pulado (requer GitHub Advanced Security)."
+          fi
+
+  analisar:
+    name: Analisar (${{ matrix.language }})
+    needs: elegibilidade
+    if: needs.elegibilidade.outputs.habilitado == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, python]
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Verificar se há código para a linguagem
+        id: has
+        run: |
+          if [ "${{ matrix.language }}" = "python" ] && [ -z "$(git ls-files '*.py')" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Sem arquivos Python ainda; análise Python pulada."
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Inicializar CodeQL
+        if: steps.has.outputs.run == 'true'
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+
+      - name: Analisar
+        if: steps.has.outputs.run == 'true'
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}

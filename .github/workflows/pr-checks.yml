@@ -1,0 +1,203 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Convenções: título do PR (Conventional Commits) e nome da branch
+  # ---------------------------------------------------------------------------
+  convencoes:
+    name: Convenções (título e branch)
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Título do PR no padrão Conventional Commits
+        uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+
+      - name: Nome da branch no padrão tipo/descricao-em-kebab-case
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          pattern='^(dependabot/.+|(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)/[a-z0-9]+(-[a-z0-9]+)*)$'
+          if [[ "$BRANCH" =~ $pattern ]]; then
+            echo "Branch '$BRANCH' segue o padrão."
+          else
+            echo "::error::Branch '$BRANCH' fora do padrão. Use <tipo>/<descricao-em-kebab-case>, ex.: feat/login-flask"
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------
+  # Detecta o que existe no repositório para ativar só os jobs relevantes
+  # ---------------------------------------------------------------------------
+  detectar:
+    name: Detectar componentes
+    runs-on: ubuntu-latest
+    outputs:
+      python: ${{ steps.d.outputs.python }}
+      supabase: ${{ steps.d.outputs.supabase }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: d
+        run: |
+          if [ -n "$(git ls-files '*.py')" ]; then echo "python=true" >> "$GITHUB_OUTPUT"; else echo "python=false" >> "$GITHUB_OUTPUT"; fi
+          if [ -f supabase/config.toml ] && [ -n "$(git ls-files 'supabase/migrations/*.sql')" ]; then echo "supabase=true" >> "$GITHUB_OUTPUT"; else echo "supabase=false" >> "$GITHUB_OUTPUT"; fi
+
+  # ---------------------------------------------------------------------------
+  # Segredos: nenhum .env versionado e varredura com Gitleaks
+  # ---------------------------------------------------------------------------
+  segredos:
+    name: Segredos
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Bloquear arquivos .env versionados
+        run: |
+          found=$(git ls-files | grep -E '(^|/)\.env(\..+)?$' | grep -v '\.env\.example$' || true)
+          if [ -n "$found" ]; then
+            echo "::error::Arquivos de ambiente não podem ser versionados:"
+            echo "$found"
+            exit 1
+          fi
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false
+
+  # ---------------------------------------------------------------------------
+  # Documentação: lint de Markdown e links internos quebrados
+  # ---------------------------------------------------------------------------
+  documentacao:
+    name: Documentação (Markdown e links)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Lint de Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v25
+        with:
+          globs: '**/*.md'
+
+      - name: Links internos
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress './**/*.md'
+          fail: true
+
+  # ---------------------------------------------------------------------------
+  # Banco: aplica migrations + seed num Postgres real, lint e testes de RLS
+  # ---------------------------------------------------------------------------
+  banco:
+    name: Banco (migrations, lint e RLS)
+    needs: detectar
+    if: needs.detectar.outputs.supabase == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: supabase/setup-cli@v3
+        with:
+          version: latest
+
+      - name: Subir Postgres local
+        run: supabase db start
+
+      - name: Aplicar migrations e seed do zero
+        run: supabase db reset
+
+      - name: Lint do schema
+        run: supabase db lint --fail-on error
+
+      - name: Testes de RLS (pgTAP)
+        run: |
+          if ls supabase/tests/*.sql >/dev/null 2>&1; then
+            supabase test db
+          else
+            echo "Nenhum teste em supabase/tests/."
+          fi
+
+  # ---------------------------------------------------------------------------
+  # Python / Flask: ativado automaticamente quando houver arquivos .py
+  # ---------------------------------------------------------------------------
+  python:
+    name: Python (lint e testes)
+    needs: detectar
+    if: needs.detectar.outputs.python == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install ruff pytest pip-audit
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Formatação (ruff format)
+        run: ruff format --check .
+
+      - name: Vulnerabilidades em dependências (pip-audit)
+        run: |
+          if [ -f requirements.txt ]; then pip-audit -r requirements.txt; else echo "Sem requirements.txt."; fi
+
+      - name: Testes (pytest)
+        run: |
+          if [ -d tests ]; then pytest -q; else echo "Sem pasta tests/."; fi
+
+  # ---------------------------------------------------------------------------
+  # Dependency Review: grátis em repositório público (privado exige GHAS)
+  # ---------------------------------------------------------------------------
+  dependencias:
+    name: Revisão de dependências
+    if: github.event.repository.private == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: moderate
+          comment-summary-in-pr: on-failure
