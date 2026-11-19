@@ -1,0 +1,48 @@
+{% extends "_layout.html" %}
+{% from "_icones.html" import icone %}
+{% set menu_ativo = "coordenacao" %}
+{% block titulo %}Editar avaliação{% endblock %}
+
+{% block conteudo %}
+<a class="link-voltar" href="{{ url_for('coordenador') }}#avaliacoes">{{ icone("voltar") }}Voltar à coordenação</a>
+
+<header class="cabecalho">
+  <div>
+    <span class="sobretitulo">Coordenação da CPA</span>
+    <h1>Editar avaliação</h1>
+    <p>Altere as informações da avaliação abaixo.</p>
+  </div>
+</header>
+
+<section class="cartao cartao-estreito">
+  <form class="form" method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="campo">
+      <label for="titulo">Título da avaliação</label>
+      <input type="text" id="titulo" name="titulo" value="{{ avaliacao.titulo }}" required>
+    </div>
+    <div class="form-linha">
+      <div class="campo">
+        <label for="inicio">Data de início</label>
+        <input type="date" id="inicio" name="inicio" value="{{ avaliacao.data_inicio.isoformat() }}" required>
+      </div>
+      <div class="campo">
+        <label for="fim">Data de encerramento</label>
+        <input type="date" id="fim" name="fim" value="{{ avaliacao.data_fim.isoformat() }}" required>
+      </div>
+    </div>
+    <div class="campo">
+      <label for="status">Status</label>
+      <select id="status" name="status" required>
+        {% for opcao in ["Agendada", "Em andamento", "Encerrada"] %}
+        <option value="{{ opcao }}" {% if avaliacao.status == opcao %}selected{% endif %}>{{ opcao }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="acoes">
+      <button type="submit" class="botao">Salvar alterações</button>
+      <a class="botao botao-sec" href="{{ url_for('coordenador') }}#avaliacoes">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "_layout.html" %}
+{% from "_icones.html" import icone %}
+{% set tema_pagina = "escuro" if tema == "escuro" else "claro" %}
+{% set menu_ativo = "usuarios" %}
+{% block titulo %}Editar usuário{% endblock %}
+
+{% block conteudo %}
+{% set rota = "admin_escuro" if tema == "escuro" else "admin" %}
+<a class="link-voltar" href="{{ url_for(rota) }}#usuarios">{{ icone("voltar") }}Voltar ao painel administrativo</a>
+
+<header class="cabecalho">
+  <div>
+    <span class="sobretitulo">Área administrativa</span>
+    <h1>Editar usuário</h1>
+    <p>Altere os dados da conta de <b>{{ usuario.nome }}</b>.</p>
+  </div>
+</header>
+
+<section class="cartao cartao-estreito">
+  <form class="form" method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="tema" value="{{ tema }}">
+    <div class="campo">
+      <label for="nome">Nome completo</label>
+      <input type="text" id="nome" name="nome" value="{{ usuario.nome }}" required>
+    </div>
+    <div class="campo">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" value="{{ usuario.email }}" required>
+    </div>
+    <div class="campo">
+      <label for="perfil">Perfil de acesso</label>
+      <select id="perfil" name="perfil" required>
+        {% for valor, rotulo in [("aluno", "Aluno"), ("coordenador", "Coordenador"), ("avaliador", "Avaliador"), ("admin", "Administrador")] %}
+        <option value="{{ valor }}" {% if usuario.perfil == valor %}selected{% endif %}>{{ rotulo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="senha">Nova senha</label>
+      <input type="password" id="senha" name="senha" autocomplete="new-password" placeholder="Deixe em branco para manter a atual">
+      <small>Preencha apenas se quiser trocar a senha.</small>
+    </div>
+    <div class="acoes">
+      <button type="submit" class="botao">Salvar alterações</button>
+      <a class="botao botao-sec" href="{{ url_for(rota) }}#usuarios">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

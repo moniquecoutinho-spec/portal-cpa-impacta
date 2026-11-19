@@ -1,0 +1,127 @@
+{% extends "_layout.html" %}
+{# AdminEscuro.html estende esta página definindo tema_pagina = "escuro". #}
+{% set menu_ativo = "usuarios" %}
+{% block titulo %}Administração{% endblock %}
+
+{% block conteudo %}
+{% set tema = tema_pagina | default("claro") %}
+{% set rota = "admin_escuro" if tema == "escuro" else "admin" %}
+{% set perfis = [("aluno", "Aluno"), ("coordenador", "Coordenador"), ("avaliador", "Avaliador"), ("admin", "Administrador")] %}
+{% set rotulo_perfil = dict(perfis) %}
+
+<header class="cabecalho secao" id="inicio">
+  <div>
+    <span class="sobretitulo">Área administrativa</span>
+    <h1>Gestão de usuários</h1>
+    <p>Cadastre contas, defina perfis de acesso e ative ou desative usuários.</p>
+  </div>
+</header>
+
+<div class="kpis entra">
+  <div class="kpi destaque"><span>Total de usuários</span><b>{{ total_usuarios }}</b></div>
+  <div class="kpi"><span>Alunos</span><b>{{ total_alunos }}</b></div>
+  <div class="kpi"><span>Coordenadores</span><b>{{ total_coordenadores }}</b></div>
+  <div class="kpi"><span>Avaliadores</span><b>{{ total_avaliadores }}</b></div>
+  <div class="kpi"><span>Administradores</span><b>{{ total_administradores }}</b></div>
+  <div class="kpi"><span>Contas inativas</span><b>{{ total_inativos }}</b></div>
+</div>
+
+<section class="cartao secao" id="cadastro">
+  <div class="cartao-cab">
+    <h2>Cadastrar novo usuário</h2>
+    <p>A conta é criada no Supabase Auth já confirmada.</p>
+  </div>
+  <form class="form" method="POST" action="{{ url_for(rota) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-linha">
+      <div class="campo">
+        <label for="nome">Nome completo</label>
+        <input type="text" id="nome" name="nome" autocomplete="off" required>
+      </div>
+      <div class="campo">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" autocomplete="off" required>
+      </div>
+    </div>
+    <div class="form-linha">
+      <div class="campo">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" autocomplete="new-password" required>
+      </div>
+      <div class="campo">
+        <label for="perfil">Perfil de acesso</label>
+        <select id="perfil" name="perfil" required>
+          <option value="">Selecione um perfil</option>
+          {% for valor, rotulo in perfis %}
+          <option value="{{ valor }}">{{ rotulo }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="acoes">
+      <button type="submit" class="botao">Cadastrar usuário</button>
+    </div>
+  </form>
+</section>
+
+<section class="cartao secao" id="usuarios">
+  <div class="cartao-cab">
+    <h2>Usuários cadastrados</h2>
+    <span class="selo">{{ usuarios | length }} exibidos</span>
+  </div>
+
+  <form class="filtros" method="GET" action="{{ url_for(rota) }}">
+    <label class="sr-only" for="busca">Pesquisar</label>
+    <input type="search" id="busca" name="busca" value="{{ request.args.get('busca', '') }}" placeholder="Pesquisar por nome ou e-mail…">
+    <label class="sr-only" for="filtro-perfil">Perfil</label>
+    <select id="filtro-perfil" name="perfil">
+      <option value="">Todos os perfis</option>
+      {% for valor, rotulo in perfis %}
+      <option value="{{ valor }}" {% if request.args.get('perfil') == valor %}selected{% endif %}>{{ rotulo }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="botao">Pesquisar</button>
+    <a class="botao botao-sec" href="{{ url_for(rota) }}#usuarios">Limpar</a>
+  </form>
+
+  {% if usuarios %}
+  <div class="tabela-wrap">
+    <table class="tabela">
+      <thead>
+        <tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th>Ações</th></tr>
+      </thead>
+      <tbody>
+        {% for usuario in usuarios %}
+        <tr>
+          <td data-rotulo="Nome" class="forte">{{ usuario.nome }}</td>
+          <td data-rotulo="E-mail" class="suave">{{ usuario.email }}</td>
+          <td data-rotulo="Perfil">{{ rotulo_perfil.get(usuario.perfil, usuario.perfil) }}</td>
+          <td data-rotulo="Status">
+            <span class="selo {{ 'selo-ok' if usuario.ativo else 'selo-off' }}">{{ "Ativo" if usuario.ativo else "Inativo" }}</span>
+          </td>
+          <td class="acoes-celula">
+            <div class="acoes">
+              <a class="botao botao-sec botao-sm" href="{{ url_for('editar_usuario', usuario_id=usuario.id, tema=tema) }}">Editar</a>
+              <form method="POST" action="{{ url_for('alternar_usuario', usuario_id=usuario.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="tema" value="{{ tema }}">
+                <button type="submit" class="botao botao-sec botao-sm">{{ "Desativar" if usuario.ativo else "Ativar" }}</button>
+              </form>
+              <form method="POST" action="{{ url_for('excluir_usuario', usuario_id=usuario.id) }}"
+                    onsubmit="return confirm('Tem certeza de que deseja excluir este usuário?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="tema" value="{{ tema }}">
+                <button type="submit" class="botao botao-perigo botao-sm">Excluir</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="vazio">Nenhum usuário encontrado com esses filtros.</p>
+  {% endif %}
+</section>
+{% endblock %}

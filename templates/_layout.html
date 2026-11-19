@@ -1,0 +1,113 @@
+{#
+  Layout comum do portal: menu lateral (desktop) / gaveta (celular).
+  Serve o visitante (área pública) e os perfis logados (área restrita).
+  Variáveis que a página pode definir com {% set %} logo após o extends:
+    tema_pagina  -> "claro" (padrão) ou "escuro"
+    menu_ativo   -> chave do item de menu destacado
+#}
+{% extends "base.html" %}
+{% from "_icones.html" import icone %}
+
+{% block corpo %}
+{% set nomes_perfil = {
+  "aluno": "Aluno",
+  "coordenador": "Coordenação",
+  "avaliador": "Avaliador externo",
+  "admin": "Administração",
+} %}
+{% set perfil = current_user.perfil if current_user.is_authenticated else "" %}
+{% set rota_admin = "admin_escuro" if tema_pagina == "escuro" else "admin" %}
+
+{# Área pública: aberta a todos (RN01). #}
+{% set itens_publicos = [
+  ("inicio", url_for("publico.inicio"), "inicio", "Início"),
+  ("devolutivas", url_for("publico.devolutivas"), "mensagem", "Mural de devolutivas"),
+  ("relatorios", url_for("publico.relatorios"), "documento", "Relatórios e boletins"),
+  ("contato", url_for("publico.contato"), "contato", "Contato"),
+] %}
+
+{# Área restrita: depende do perfil. #}
+{% set itens_restritos = [] %}
+{% if perfil %}
+  {% set itens_restritos = [("dashboards", url_for("dashboards.listar"), "grafico", "Dashboards")] %}
+  {% if perfil == "aluno" %}
+    {% set itens_restritos = itens_restritos + [("avaliacoes", url_for("aluno_avaliacoes"), "lista", "Minhas avaliações")] %}
+  {% elif perfil == "coordenador" %}
+    {% set itens_restritos = itens_restritos + [("coordenacao", url_for("coordenador"), "lista", "Avaliações")] %}
+  {% elif perfil == "admin" %}
+    {% set itens_restritos = itens_restritos + [
+      ("usuarios", url_for(rota_admin), "usuarios", "Usuários"),
+      ("coordenacao", url_for("coordenador"), "lista", "Avaliações"),
+    ] %}
+  {% endif %}
+{% endif %}
+
+<input type="checkbox" id="menu-aberto" aria-hidden="true">
+
+<header class="topo">
+  <a class="marca" href="{{ url_for('publico.inicio') }}">
+    <span class="marca-sigla">CPA</span>
+    <span><b>Portal CPA</b><small>{{ nomes_perfil.get(perfil, "Faculdade Impacta") }}</small></span>
+  </a>
+  <label for="menu-aberto" class="botao-menu">{{ icone("menu") }}<span class="sr-only">Abrir menu</span></label>
+</header>
+
+<nav class="menu" aria-label="Menu principal">
+  <a class="marca" href="{{ url_for('publico.inicio') }}">
+    <span class="marca-sigla">CPA</span>
+    <span><b>Portal CPA</b><small>Faculdade Impacta</small></span>
+  </a>
+
+  {% if itens_restritos %}
+  <p class="menu-rotulo">{{ nomes_perfil.get(perfil, "Área restrita") }}</p>
+  <ul>
+    {% for chave, link, nome_icone, rotulo in itens_restritos %}
+    <li><a href="{{ link }}" class="{{ 'ativo' if chave == menu_ativo }}">{{ icone(nome_icone) }}{{ rotulo }}</a></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <p class="menu-rotulo">Portal</p>
+  <ul>
+    {% for chave, link, nome_icone, rotulo in itens_publicos %}
+    <li><a href="{{ link }}" class="{{ 'ativo' if chave == menu_ativo }}">{{ icone(nome_icone) }}{{ rotulo }}</a></li>
+    {% endfor %}
+  </ul>
+
+  <div class="menu-rodape">
+    {% if current_user.is_authenticated %}
+    <div class="usuario">Conectado como <b>{{ current_user.nome }}</b><span class="perfil-tag">{{ nomes_perfil.get(perfil) }}</span></div>
+    <ul>
+      {% if perfil == "admin" and menu_ativo == "usuarios" %}
+        {% if tema_pagina == "escuro" %}
+        <li><a href="{{ url_for('admin') }}">{{ icone("sol") }}Tema claro</a></li>
+        {% else %}
+        <li><a href="{{ url_for('admin_escuro') }}">{{ icone("lua") }}Tema escuro</a></li>
+        {% endif %}
+      {% endif %}
+      <li><a href="{{ url_for('autenticacao.logout') }}">{{ icone("sair") }}Sair</a></li>
+    </ul>
+    {% else %}
+    <a class="botao botao-bloco botao-acento" href="{{ url_for('autenticacao.login') }}">{{ icone("entrar") }}Entrar</a>
+    <p class="menu-nota">Dashboards exigem login.</p>
+    {% endif %}
+  </div>
+</nav>
+<label for="menu-aberto" class="menu-veu" aria-hidden="true"></label>
+
+<div class="app">
+  <main class="conteudo">
+    {% include "_mensagens.html" %}
+    {% block conteudo %}{% endblock %}
+  </main>
+</div>
+
+<script>
+  // Fecha a gaveta do celular ao escolher um item do menu.
+  document.querySelectorAll(".menu a").forEach(function (link) {
+    link.addEventListener("click", function () {
+      document.getElementById("menu-aberto").checked = false;
+    });
+  });
+</script>
+{% endblock %}

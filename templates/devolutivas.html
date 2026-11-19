@@ -1,0 +1,60 @@
+{% extends "_layout.html" %}
+{% from "_devolutiva_campos.html" import campos_devolutiva %}
+{% set menu_ativo = "devolutivas" %}
+{% block titulo %}Mural de devolutivas{% endblock %}
+
+{% block conteudo %}
+{% set admin = current_user.is_authenticated and current_user.perfil == "admin" %}
+<header class="cabecalho">
+  <div>
+    <span class="sobretitulo">Transparência · acesso público</span>
+    <h1>Mural de devolutivas</h1>
+    <p>O que a comunidade apontou nas avaliações da CPA e o que cada área fez em resposta.</p>
+  </div>
+</header>
+
+{% if admin %}
+<details class="cartao painel-admin">
+  <summary><h2>Publicar devolutiva</h2><span class="selo selo-agendada">Admin</span></summary>
+  <form class="form" method="POST" action="{{ url_for('publico.criar_devolutiva') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {{ campos_devolutiva(None, status_opcoes, hoje) }}
+    <div class="acoes"><button type="submit" class="botao">Publicar no mural</button></div>
+  </form>
+</details>
+{% endif %}
+
+<nav class="filtros-chips" aria-label="Filtrar por status">
+  <a class="chip {{ 'ativo' if not status_filtro }}" href="{{ url_for('publico.devolutivas') }}">Todas</a>
+  {% for valor, rotulo in status_opcoes.items() %}
+  <a class="chip {{ 'ativo' if status_filtro == valor }}" href="{{ url_for('publico.devolutivas', status=valor) }}">{{ rotulo }}</a>
+  {% endfor %}
+</nav>
+
+<section class="cartao">
+  {% if devolutivas %}
+    {% for d in devolutivas %}
+    <article class="devolutiva devolutiva-{{ d.status }}">
+      <div class="devolutiva-topo">
+        <small>{{ d.data_publicacao.strftime('%d/%m/%Y') }} · {{ d.area_responsavel }}</small>
+        <span class="selo selo-{{ d.status }}">{{ d.status_rotulo }}</span>
+      </div>
+      <h3>{{ d.titulo }}</h3>
+      <p>{{ d.acao }}</p>
+      {% if admin %}
+      <div class="acoes">
+        <a class="botao botao-sec botao-sm" href="{{ url_for('publico.editar_devolutiva', devolutiva_id=d.id) }}">Editar</a>
+        <form method="POST" action="{{ url_for('publico.excluir_devolutiva', devolutiva_id=d.id) }}"
+              onsubmit="return confirm('Remover esta devolutiva do mural?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="botao botao-perigo botao-sm">Excluir</button>
+        </form>
+      </div>
+      {% endif %}
+    </article>
+    {% endfor %}
+  {% else %}
+  <p class="vazio">Nenhuma devolutiva {{ 'com esse status' if status_filtro else 'publicada ainda' }}.</p>
+  {% endif %}
+</section>
+{% endblock %}

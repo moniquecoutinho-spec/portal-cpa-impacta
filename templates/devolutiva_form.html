@@ -1,0 +1,27 @@
+{% extends "_layout.html" %}
+{% from "_icones.html" import icone %}
+{% from "_devolutiva_campos.html" import campos_devolutiva %}
+{% set menu_ativo = "devolutivas" %}
+{% block titulo %}Editar devolutiva{% endblock %}
+
+{% block conteudo %}
+<a class="link-voltar" href="{{ url_for('publico.devolutivas') }}">{{ icone("voltar") }}Voltar ao mural</a>
+
+<header class="cabecalho">
+  <div>
+    <span class="sobretitulo">Mural de devolutivas · Admin</span>
+    <h1>Editar devolutiva</h1>
+  </div>
+</header>
+
+<section class="cartao cartao-estreito">
+  <form class="form" method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {{ campos_devolutiva(devolutiva, status_opcoes, None) }}
+    <div class="acoes">
+      <button type="submit" class="botao">Salvar alterações</button>
+      <a class="botao botao-sec" href="{{ url_for('publico.devolutivas') }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

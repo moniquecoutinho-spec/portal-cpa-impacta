@@ -1,0 +1,34 @@
+{% extends "_layout.html" %}
+{% set menu_ativo = "avaliacoes" %}
+{% block titulo %}Minhas avaliações{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div>
+    <span class="sobretitulo">Área do aluno</span>
+    <h1>Minhas avaliações</h1>
+    <p>Acompanhe os ciclos de avaliação institucional e seus períodos de resposta.</p>
+  </div>
+</header>
+
+<section class="cartao">
+  {% if avaliacoes %}
+  <ul class="lista entra">
+    {% for avaliacao in avaliacoes %}
+    <li class="item">
+      <div>
+        <h3>{{ avaliacao.titulo }}</h3>
+        <div class="item-meta">
+          <span>Início <b>{{ avaliacao.data_inicio.strftime('%d/%m/%Y') }}</b></span>
+          <span>Encerramento <b>{{ avaliacao.data_fim.strftime('%d/%m/%Y') }}</b></span>
+        </div>
+      </div>
+      <span class="selo selo-{{ avaliacao.status | lower | replace(' ', '-') }}">{{ avaliacao.status }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="vazio">Nenhuma avaliação cadastrada no momento.</p>
+  {% endif %}
+</section>
+{% endblock %}

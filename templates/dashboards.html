@@ -1,0 +1,69 @@
+{% extends "_layout.html" %}
+{% from "_dashboard_campos.html" import campos_dashboard %}
+{% set menu_ativo = "dashboards" %}
+{% block titulo %}Dashboards{% endblock %}
+
+{% block conteudo %}
+{% set admin = current_user.perfil == "admin" %}
+{% set descricao_perfil = {
+  "aluno": "Como aluno, você vê o painel da Pesquisa Institucional da CPA.",
+  "coordenador": "Como coordenador, você vê a Pesquisa da CPA, a Avaliação Docente e a Pesquisa de Egressos.",
+  "avaliador": "Como avaliador externo, você tem leitura integral de todos os dashboards ativos.",
+  "admin": "Como administrador, você vê todos os dashboards e gerencia os links e as permissões.",
+} %}
+<header class="cabecalho">
+  <div>
+    <span class="sobretitulo">Área restrita</span>
+    <h1>Dashboards das pesquisas</h1>
+    <p>{{ descricao_perfil.get(current_user.perfil) }}</p>
+  </div>
+</header>
+
+{% if admin %}
+<details class="cartao painel-admin">
+  <summary><h2>Cadastrar dashboard</h2><span class="selo selo-agendada">Admin</span></summary>
+  <form class="form" method="POST" action="{{ url_for('dashboards.criar') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {{ campos_dashboard(None, perfis_vinculaveis) }}
+    <div class="acoes"><button type="submit" class="botao">Cadastrar dashboard</button></div>
+  </form>
+</details>
+{% endif %}
+
+{% if dashboards %}
+<div class="dashboards">
+  {% for d in dashboards %}
+  <article class="cartao painel-embed {{ 'inativo' if not d.ativo }}">
+    <div class="cartao-cab">
+      <div>
+        <span class="num-painel">{{ d.codigo }}</span>
+        <h2>{{ d.nome }}</h2>
+      </div>
+      {% if admin %}
+      <div class="acoes">
+        {% if not d.ativo %}<span class="selo selo-off">Inativo</span>{% endif %}
+        <a class="botao botao-sec botao-sm" href="{{ url_for('dashboards.editar', dashboard_id=d.id) }}">Editar</a>
+        <form method="POST" action="{{ url_for('dashboards.excluir', dashboard_id=d.id) }}"
+              onsubmit="return confirm('Remover este dashboard do portal?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="botao botao-perigo botao-sm">Excluir</button>
+        </form>
+      </div>
+      {% endif %}
+      {% if d.descricao %}<p>{{ d.descricao }}</p>{% endif %}
+    </div>
+    <div class="embed">
+      <iframe src="{{ d.url_embed }}" title="{{ d.nome }}" loading="lazy" allowfullscreen
+              referrerpolicy="strict-origin-when-cross-origin"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"></iframe>
+    </div>
+    {% if admin %}
+    <p class="embed-rodape">Visível para: Avaliador MEC, Admin{% for p in d.perfis | sort(attribute='id') %}, {{ p.nome }}{% endfor %}</p>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="cartao vazio">Nenhum dashboard está liberado para o seu perfil no momento.</p>
+{% endif %}
+{% endblock %}

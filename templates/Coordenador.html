@@ -1,0 +1,93 @@
+{% extends "_layout.html" %}
+{% set menu_ativo = "coordenacao" %}
+{% block titulo %}Coordenação{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho secao" id="inicio">
+  <div>
+    <span class="sobretitulo">Coordenação da CPA</span>
+    <h1>Painel de acompanhamento</h1>
+    <p>Cadastre os ciclos de avaliação e acompanhe a participação dos alunos.</p>
+  </div>
+</header>
+
+<div class="kpis entra">
+  <div class="kpi"><span>Avaliações</span><b>{{ total_avaliacoes }}</b><small>ciclos cadastrados</small></div>
+  <div class="kpi destaque"><span>Participação</span><b>{{ ("%.1f" % percentual_participacao).replace(".0", "").replace(".", ",") }}%</b><small>{{ total_participacoes }} de {{ total_alunos }} alunos</small></div>
+  <div class="kpi"><span>Alunos ativos</span><b>{{ total_alunos }}</b><small>aptos a responder</small></div>
+  <div class="kpi"><span>Relatórios</span><b>{{ total_documentos }}</b><small>publicados</small></div>
+</div>
+
+<section class="grade grade-2 secao" id="avaliacoes">
+  <div class="cartao">
+    <div class="cartao-cab">
+      <h2>Nova avaliação</h2>
+      <p>Defina o título e o período de respostas.</p>
+    </div>
+    <form class="form" method="POST" action="{{ url_for('coordenador') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="campo">
+        <label for="titulo">Título da avaliação</label>
+        <input type="text" id="titulo" name="titulo" placeholder="Ex.: Avaliação Institucional 2026" required>
+      </div>
+      <div class="form-linha">
+        <div class="campo">
+          <label for="inicio">Data de início</label>
+          <input type="date" id="inicio" name="inicio" required>
+        </div>
+        <div class="campo">
+          <label for="fim">Data de encerramento</label>
+          <input type="date" id="fim" name="fim" required>
+        </div>
+      </div>
+      <button type="submit" class="botao">Cadastrar avaliação</button>
+    </form>
+  </div>
+
+  <div class="cartao">
+    <div class="cartao-cab">
+      <h2>Avaliações cadastradas</h2>
+      <span class="selo">{{ total_avaliacoes }} no total</span>
+    </div>
+
+    {% if avaliacoes %}
+    <ul class="lista">
+      {% for avaliacao in avaliacoes %}
+      <li class="item">
+        <div>
+          <h3>{{ avaliacao.titulo }}</h3>
+          <div class="item-meta">
+            <span>{{ avaliacao.data_inicio.strftime('%d/%m/%Y') }} → {{ avaliacao.data_fim.strftime('%d/%m/%Y') }}</span>
+            <span class="selo selo-{{ avaliacao.status | lower | replace(' ', '-') }}">{{ avaliacao.status }}</span>
+          </div>
+        </div>
+        <div class="acoes">
+          <a class="botao botao-sec botao-sm" href="{{ url_for('editar_avaliacao', avaliacao_id=avaliacao.id) }}">Editar</a>
+          <form method="POST" action="{{ url_for('excluir_avaliacao', avaliacao_id=avaliacao.id) }}"
+                onsubmit="return confirm('Tem certeza de que deseja excluir esta avaliação?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="botao botao-perigo botao-sm">Excluir</button>
+          </form>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="vazio">Nenhuma avaliação cadastrada ainda.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="grade grade-cards secao" id="resultados">
+  <div class="cartao">
+    <h2>Resultados</h2>
+    <p class="texto-suave">Os resultados das pesquisas (CPA, Avaliação Docente e Egressos) ficam nos dashboards do Looker Studio.</p>
+    <div class="acoes"><a class="botao botao-sec" href="{{ url_for('dashboards.listar') }}">Abrir dashboards</a></div>
+  </div>
+  <div class="cartao">
+    <h2>Relatórios</h2>
+    <p class="texto-suave">Relatórios de autoavaliação e boletins publicados pela CPA, com download em PDF.</p>
+    <div class="acoes"><a class="botao botao-sec" href="{{ url_for('publico.relatorios') }}">Ver relatórios</a></div>
+  </div>
+</section>
+{% endblock %}

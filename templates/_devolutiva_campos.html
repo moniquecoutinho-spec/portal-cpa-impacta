@@ -1,0 +1,29 @@
+{# Campos do formulário de devolutiva, usados na publicação e na edição. #}
+{% macro campos_devolutiva(d, status_opcoes, hoje) -%}
+<div class="campo">
+  <label for="titulo">Demanda identificada</label>
+  <input type="text" id="titulo" name="titulo" value="{{ d.titulo if d }}" placeholder="Ex.: Ampliação do acervo digital da biblioteca" required>
+</div>
+<div class="form-linha">
+  <div class="campo">
+    <label for="area_responsavel">Área responsável</label>
+    <input type="text" id="area_responsavel" name="area_responsavel" value="{{ d.area_responsavel if d }}" placeholder="Ex.: Biblioteca" required>
+  </div>
+  <div class="campo">
+    <label for="status">Status</label>
+    <select id="status" name="status" required>
+      {% for valor, rotulo in status_opcoes.items() %}
+      <option value="{{ valor }}" {% if d and d.status == valor %}selected{% endif %}>{{ rotulo }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+<div class="campo">
+  <label for="acao">Ação realizada pela instituição</label>
+  <textarea id="acao" name="acao" rows="4" required>{{ d.acao if d }}</textarea>
+</div>
+<div class="campo campo-curto">
+  <label for="data_publicacao">Data de publicação</label>
+  <input type="date" id="data_publicacao" name="data_publicacao" value="{{ d.data_publicacao.isoformat() if d else hoje }}" required>
+</div>
+{%- endmacro %}

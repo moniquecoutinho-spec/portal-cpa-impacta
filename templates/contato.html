@@ -1,0 +1,35 @@
+{% extends "_layout.html" %}
+{% from "_icones.html" import icone %}
+{% set menu_ativo = "contato" %}
+{% block titulo %}Contato{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho">
+  <div>
+    <span class="sobretitulo">Atendimento à comunidade</span>
+    <h1>Fale com a CPA</h1>
+    <p>Dúvidas, sugestões e demandas sobre a avaliação institucional. O atendimento segue o horário da coordenação da CPA.</p>
+  </div>
+</header>
+
+<div class="contatos entra">
+  <article class="cartao contato">
+    {{ icone("mensagem") }}
+    <h3>Google Chat</h3>
+    <p>Converse com a equipe da CPA em horário comercial.</p>
+    <a class="botao botao-bloco" href="{{ canais.chat }}" target="_blank" rel="noopener">Abrir o Chat</a>
+  </article>
+  <article class="cartao contato">
+    {{ icone("usuarios") }}
+    <h3>Google Meet</h3>
+    <p>Atendimento por videochamada, com agendamento prévio por e-mail.</p>
+    <a class="botao botao-bloco" href="{{ canais.meet }}" target="_blank" rel="noopener">Entrar no Meet</a>
+  </article>
+  <article class="cartao contato">
+    {{ icone("contato") }}
+    <h3>E-mail</h3>
+    <p>{{ canais.email }}</p>
+    <a class="botao botao-bloco botao-sec" href="mailto:{{ canais.email }}">Escrever e-mail</a>
+  </article>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_icones.html" import icone %}
+{% block titulo %}Entrar{% endblock %}
+
+{% block corpo %}
+<div class="login">
+  <section class="login-arte">
+    <div class="marca">
+      <span class="marca-sigla">CPA</span>
+      <span><b>Portal CPA</b><small>Faculdade Impacta</small></span>
+    </div>
+
+    <div class="entra">
+      <h1>A avaliação institucional, <em>visível</em> para toda a comunidade.</h1>
+      <p>Comissão Própria de Avaliação · resultados das pesquisas, devolutivas das áreas e relatórios em um só lugar.</p>
+      <ul>
+        <li>Dashboards das pesquisas institucionais</li>
+        <li>Mural de devolutivas das áreas</li>
+        <li>Relatórios e boletins</li>
+      </ul>
+    </div>
+
+    <small class="rodape">Projeto de extensão · 2026</small>
+
+    <div class="login-barras" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </section>
+
+  <section class="login-form">
+    <div class="login-caixa entra">
+      <a class="link-voltar" href="{{ url_for('publico.inicio') }}">{{ icone("voltar") }}Voltar ao portal</a>
+      <h2>Acesse sua conta</h2>
+      <p>O conteúdo exibido depende do seu perfil de acesso.</p>
+
+      {% include "_mensagens.html" %}
+
+      {% if current_user.is_authenticated %}
+      <div class="cartao">
+        <p>Você já está conectado como <b>{{ current_user.nome }}</b>.</p>
+        <div class="acoes">
+          <a class="botao" href="{{ url_for('dashboards.listar') }}">Ir para os dashboards</a>
+          <a class="botao botao-sec" href="{{ url_for('autenticacao.logout') }}">Sair e trocar de conta</a>
+        </div>
+      </div>
+      {% else %}
+      <form class="form" method="POST" action="{{ url_for('autenticacao.login') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="campo">
+          <label for="email">E-mail institucional</label>
+          <input type="email" id="email" name="email" placeholder="seu.nome@faculdadeimpacta.edu.br" autocomplete="email" required>
+        </div>
+        <div class="campo">
+          <label for="senha">Senha</label>
+          <input type="password" id="senha" name="senha" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="botao botao-bloco">Entrar</button>
+      </form>
+      <p class="nota">Use o e-mail e a senha cadastrados pela CPA.</p>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

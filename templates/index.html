@@ -1,0 +1,71 @@
+{% extends "_layout.html" %}
+{% from "_icones.html" import icone %}
+{% set menu_ativo = "inicio" %}
+{% block titulo %}Início{% endblock %}
+
+{% block conteudo %}
+<section class="hero entra">
+  <span class="sobretitulo">Comissão Própria de Avaliação</span>
+  <h1>A avaliação institucional, <em>visível</em> para toda a comunidade.</h1>
+  <p>A CPA conduz a autoavaliação da Faculdade Impacta e publica aqui o que foi apontado pela comunidade, o que a instituição fez a respeito e os relatórios oficiais de cada ciclo.</p>
+  <div class="acoes">
+    {% if current_user.is_authenticated %}
+    <a class="botao botao-acento" href="{{ url_for('dashboards.listar') }}">{{ icone("grafico") }}Ir para os dashboards</a>
+    {% else %}
+    <a class="botao botao-acento" href="{{ url_for('autenticacao.login') }}">{{ icone("entrar") }}Acessar a área restrita</a>
+    {% endif %}
+    <a class="botao botao-sec" href="{{ url_for('publico.devolutivas') }}">Ver o mural de devolutivas</a>
+  </div>
+</section>
+
+<div class="kpis entra">
+  <div class="kpi destaque"><span>Devolutivas publicadas</span><b>{{ indicadores.devolutivas }}</b><small>{{ indicadores.concluidas }} concluídas</small></div>
+  <div class="kpi"><span>Relatórios e boletins</span><b>{{ indicadores.documentos }}</b><small>em PDF, abertos a todos</small></div>
+  <div class="kpi"><span>Dashboards ativos</span><b>{{ indicadores.dashboards }}</b><small>por perfil de acesso</small></div>
+  <div class="kpi"><span>Ciclos de avaliação</span><b>{{ indicadores.avaliacoes }}</b><small>cadastrados</small></div>
+</div>
+
+<section class="secao">
+  <div class="cartao-cab"><h2>Acesso rápido</h2></div>
+  <div class="atalhos">
+    <a class="cartao atalho" href="{{ url_for('publico.devolutivas') }}">
+      {{ icone("mensagem") }}
+      <h3>Mural de devolutivas</h3>
+      <p>Demandas apontadas nas pesquisas e as ações de cada área.</p>
+    </a>
+    <a class="cartao atalho" href="{{ url_for('publico.relatorios') }}">
+      {{ icone("documento") }}
+      <h3>Relatórios e boletins</h3>
+      <p>Documentos oficiais da CPA por ano e categoria.</p>
+    </a>
+    <a class="cartao atalho" href="{{ url_for('publico.contato') }}">
+      {{ icone("contato") }}
+      <h3>Fale com a CPA</h3>
+      <p>Atendimento por Google Chat, Google Meet ou e-mail.</p>
+    </a>
+    <a class="cartao atalho atalho-destaque" href="{{ url_for('dashboards.listar') }}">
+      {{ icone("grafico") }}
+      <h3>Dashboards</h3>
+      <p>Resultados das pesquisas conforme o seu perfil. Exige login.</p>
+    </a>
+  </div>
+</section>
+
+<section class="cartao secao">
+  <div class="cartao-cab">
+    <h2>Devolutivas recentes</h2>
+    <a class="botao botao-sec botao-sm" href="{{ url_for('publico.devolutivas') }}">Ver todas</a>
+  </div>
+  {% if recentes %}
+    {% for d in recentes %}
+    <article class="devolutiva">
+      <small>{{ d.data_publicacao.strftime('%d/%m/%Y') }} · {{ d.area_responsavel }}</small>
+      <h3>{{ d.titulo }}</h3>
+      <p>{{ d.acao }}</p>
+    </article>
+    {% endfor %}
+  {% else %}
+  <p class="vazio">Nenhuma devolutiva publicada ainda.</p>
+  {% endif %}
+</section>
+{% endblock %}

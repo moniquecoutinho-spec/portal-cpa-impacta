@@ -1,0 +1,28 @@
+{% extends "_layout.html" %}
+{% from "_icones.html" import icone %}
+{% from "_dashboard_campos.html" import campos_dashboard %}
+{% set menu_ativo = "dashboards" %}
+{% block titulo %}Editar dashboard{% endblock %}
+
+{% block conteudo %}
+<a class="link-voltar" href="{{ url_for('dashboards.listar') }}">{{ icone("voltar") }}Voltar aos dashboards</a>
+
+<header class="cabecalho">
+  <div>
+    <span class="sobretitulo">{{ dashboard.codigo }} · Admin</span>
+    <h1>Editar dashboard</h1>
+    <p>Troque o link quando a CPA enviar o endereço oficial, ou ajuste quem pode ver o painel.</p>
+  </div>
+</header>
+
+<section class="cartao cartao-estreito">
+  <form class="form" method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {{ campos_dashboard(dashboard, perfis_vinculaveis) }}
+    <div class="acoes">
+      <button type="submit" class="botao">Salvar alterações</button>
+      <a class="botao botao-sec" href="{{ url_for('dashboards.listar') }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

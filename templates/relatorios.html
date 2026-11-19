@@ -1,0 +1,167 @@
+{% extends "_layout.html" %}
+{% from "_icones.html" import icone %}
+{% set menu_ativo = "relatorios" %}
+{% block titulo %}Relatórios e boletins{% endblock %}
+
+{% block conteudo %}
+{% set admin = current_user.is_authenticated and current_user.perfil == "admin" %}
+<header class="cabecalho">
+  <div>
+    <span class="sobretitulo">Transparência · acesso público</span>
+    <h1>Relatórios e boletins</h1>
+    <p>Documentos oficiais da CPA em PDF, organizados por ano de referência e categoria.</p>
+  </div>
+</header>
+
+{% if admin %}
+<details class="cartao painel-admin">
+  <summary><h2>Enviar documento</h2><span class="selo selo-agendada">Admin</span></summary>
+  <form class="form" method="POST" action="{{ url_for('publico.enviar_documento') }}" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="campo">
+      <label for="titulo">Título</label>
+      <input type="text" id="titulo" name="titulo" placeholder="Ex.: Relatório de Autoavaliação Institucional 2026" required>
+    </div>
+    <div class="form-linha">
+      <div class="campo">
+        <label for="categoria">Categoria</label>
+        <select id="categoria" name="categoria" required>
+          {% for valor, rotulo in categorias.items() %}<option value="{{ valor }}">{{ rotulo }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="campo">
+        <label for="ano_referencia">Ano de referência</label>
+        <input type="number" id="ano_referencia" name="ano_referencia" min="2000" max="2100" value="{{ ano_atual }}" required>
+      </div>
+    </div>
+    <div class="campo">
+      <label for="descricao">Descrição <span class="texto-suave">(opcional)</span></label>
+      <input type="text" id="descricao" name="descricao" placeholder="Resumo do conteúdo">
+    </div>
+    <div class="campo">
+      <label for="arquivo">Arquivo PDF</label>
+      <input type="file" id="arquivo" name="arquivo" accept="application/pdf,.pdf" required>
+      <small>Somente PDF, até 20 MB.</small>
+    </div>
+    <input type="hidden" name="storage_path" value="">
+    <p class="texto-suave" id="envio-status" role="status" aria-live="polite"></p>
+    <div class="acoes"><button type="submit" class="botao">Publicar documento</button></div>
+  </form>
+</details>
+<script>
+  // Envia o PDF direto ao Supabase Storage (URL de uso único gerada pelo Flask),
+  // sem passar pela Vercel, que limita cada requisição a ~4,5 MB.
+  (function () {
+    const form = document.querySelector('form[action="{{ url_for('publico.enviar_documento') }}"]');
+    if (!form || !window.fetch) return;
+    const entrada = form.querySelector('#arquivo');
+    const botao = form.querySelector('button[type="submit"]');
+    const status = document.getElementById('envio-status');
+    const LIMITE = 20 * 1024 * 1024;
+
+    form.addEventListener('submit', async function (evento) {
+      const arquivo = entrada.files[0];
+      if (!arquivo || form.dataset.enviado) return;
+      evento.preventDefault();
+
+      if (arquivo.size > LIMITE) { status.textContent = 'O PDF passa do limite de 20 MB.'; return; }
+      const cabecalho = new Uint8Array(await arquivo.slice(0, 4).arrayBuffer());
+      if (String.fromCharCode.apply(null, cabecalho) !== '%PDF') {
+        status.textContent = 'Envie apenas arquivos PDF.';
+        return;
+      }
+
+      botao.disabled = true;
+      status.textContent = 'Enviando o arquivo…';
+      try {
+        const resposta = await fetch('{{ url_for('publico.assinar_envio') }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}' },
+          body: JSON.stringify({ nome: arquivo.name, ano: form.ano_referencia.value })
+        });
+        const dados = await resposta.json().catch(function () { return {}; });
+        if (!resposta.ok) throw new Error(dados.erro || 'Não foi possível preparar o envio.');
+
+        const envio = await fetch(dados.url, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/pdf', 'x-upsert': 'false' },
+          body: arquivo
+        });
+        if (!envio.ok) throw new Error('Falha ao enviar o arquivo. Tente novamente.');
+
+        form.storage_path.value = dados.caminho;
+        entrada.disabled = true; // o arquivo já está no Storage; não reenviar pelo formulário
+        form.dataset.enviado = '1';
+        status.textContent = 'Arquivo enviado. Publicando…';
+        form.submit();
+      } catch (erro) {
+        // Plano B: arquivos pequenos ainda cabem no envio tradicional pelo Flask.
+        if (arquivo.size <= 4 * 1024 * 1024) {
+          form.storage_path.value = '';
+          entrada.disabled = false;
+          form.dataset.enviado = '1';
+          status.textContent = 'Enviando pelo método alternativo…';
+          form.submit();
+          return;
+        }
+        status.textContent = erro.message;
+        botao.disabled = false;
+      }
+    });
+  })();
+</script>
+{% endif %}
+
+<section class="cartao">
+  <form class="filtros filtros-2" method="GET" action="{{ url_for('publico.relatorios') }}">
+    <label class="sr-only" for="filtro-categoria">Categoria</label>
+    <select id="filtro-categoria" name="categoria">
+      <option value="">Todas as categorias</option>
+      {% for valor, rotulo in categorias.items() %}
+      <option value="{{ valor }}" {% if categoria_filtro == valor %}selected{% endif %}>{{ rotulo }}</option>
+      {% endfor %}
+    </select>
+    <label class="sr-only" for="filtro-ano">Ano</label>
+    <select id="filtro-ano" name="ano">
+      <option value="">Todos os anos</option>
+      {% for ano in anos %}
+      <option value="{{ ano }}" {% if ano_filtro == ano | string %}selected{% endif %}>{{ ano }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="botao">Filtrar</button>
+    <a class="botao botao-sec" href="{{ url_for('publico.relatorios') }}">Limpar</a>
+  </form>
+
+  {% if documentos %}
+  <ul class="lista">
+    {% for doc in documentos %}
+    <li class="item">
+      <div class="item-doc">
+        <span class="icone-pdf" aria-hidden="true">PDF</span>
+        <div>
+          <h3>{{ doc.titulo }}</h3>
+          <div class="item-meta">
+            <span>{{ doc.categoria_rotulo }}</span>
+            <span>Ano-base <b>{{ doc.ano_referencia }}</b></span>
+          </div>
+          {% if doc.descricao %}<p class="texto-suave">{{ doc.descricao }}</p>{% endif %}
+        </div>
+      </div>
+      <div class="acoes">
+        <a class="botao botao-sm" href="{{ url_documento(doc) }}" target="_blank" rel="noopener">{{ icone("documento") }}Abrir PDF</a>
+        {% if admin %}
+        <form method="POST" action="{{ url_for('publico.excluir_documento', documento_id=doc.id) }}"
+              onsubmit="return confirm('Remover este documento? O arquivo também será apagado.');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="botao botao-perigo botao-sm">Excluir</button>
+        </form>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="vazio">Nenhum documento {{ 'com esses filtros' if categoria_filtro or ano_filtro else 'publicado ainda' }}.</p>
+  {% endif %}
+</section>
+{% endblock %}

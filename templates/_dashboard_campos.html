@@ -1,0 +1,33 @@
+{# Campos do formulário de dashboard, usados no cadastro e na edição. #}
+{% macro campos_dashboard(d, perfis_vinculaveis) -%}
+<div class="form-linha">
+  <div class="campo">
+    <label for="nome">Nome do dashboard</label>
+    <input type="text" id="nome" name="nome" value="{{ d.nome if d }}" placeholder="Ex.: Pesquisa Institucional CPA" required>
+  </div>
+  <div class="campo">
+    <label for="ordem">Ordem de exibição</label>
+    <input type="number" id="ordem" name="ordem" value="{{ d.ordem if d else 0 }}" min="0">
+  </div>
+</div>
+<div class="campo">
+  <label for="url_embed">Link do Looker Studio</label>
+  <input type="url" id="url_embed" name="url_embed" value="{{ d.url_embed if d }}" placeholder="https://lookerstudio.google.com/embed/reporting/…" required>
+  <small>Cole o link de incorporação ou o de compartilhamento; o portal converte para o formato de iframe.</small>
+</div>
+<div class="campo">
+  <label for="descricao">Descrição <span class="texto-suave">(opcional)</span></label>
+  <input type="text" id="descricao" name="descricao" value="{{ d.descricao or '' if d }}" placeholder="Indicadores apresentados no painel">
+</div>
+<fieldset class="campo">
+  <legend>Quem pode ver</legend>
+  <div class="checks">
+    {% for valor, rotulo in perfis_vinculaveis.items() %}
+    <label class="check"><input type="checkbox" name="perfis" value="{{ valor }}" {% if d and valor in d.perfis_app %}checked{% endif %}>{{ rotulo }}</label>
+    {% endfor %}
+    <label class="check check-fixo"><input type="checkbox" checked disabled>Avaliador MEC e Admin</label>
+  </div>
+  <small>Avaliador MEC e Admin veem todos os dashboards ativos (RN03).</small>
+</fieldset>
+<label class="check"><input type="checkbox" name="ativo" {% if not d or d.ativo %}checked{% endif %}>Dashboard ativo (visível aos perfis)</label>
+{%- endmacro %}
