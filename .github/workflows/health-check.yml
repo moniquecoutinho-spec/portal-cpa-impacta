@@ -1,0 +1,61 @@
+name: Health Check
+
+# O plano gratuito do Supabase pausa o projeto após ~7 dias sem atividade.
+# Este workflow faz uma consulta real no banco (e, se configurado, acessa o
+# portal na Vercel) toda terça e quinta para manter tudo ativo.
+# Em caso de falha, cada verificação tenta de novo após 3s, 6s e 12s.
+
+on:
+  schedule:
+    - cron: '0 12 * * 2,4' # terça e quinta, 09:00 (Brasília)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: health-check
+  cancel-in-progress: false
+
+jobs:
+  banco:
+    name: Supabase (consulta no banco)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Consultar o banco pela API REST
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "::error::Cadastre os secrets SUPABASE_URL e SUPABASE_PUBLISHABLE_KEY (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+
+          # "devolutivas" tem leitura pública (RLS), então a chave publicável basta.
+          .github/scripts/verificar-http.sh \
+            "${SUPABASE_URL%/}/rest/v1/devolutivas?select=id&limit=1" "" \
+            --header "apikey: $SUPABASE_PUBLISHABLE_KEY" \
+            --header "Authorization: Bearer $SUPABASE_PUBLISHABLE_KEY"
+
+  vercel:
+    name: Vercel (portal e conexão com o banco)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Chamar /saude no portal
+        env:
+          PORTAL_URL: ${{ secrets.PORTAL_URL }}
+        run: |
+          if [ -z "$PORTAL_URL" ]; then
+            echo "::warning::Secret PORTAL_URL não cadastrado (ex.: https://meu-portal.vercel.app). Verificação da Vercel ignorada."
+            exit 0
+          fi
+
+          # /saude executa "select 1" e uma contagem no banco via Flask.
+          .github/scripts/verificar-http.sh "${PORTAL_URL%/}/saude" '"banco":[[:space:]]*"ok"'
